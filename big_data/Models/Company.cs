@@ -16,16 +16,16 @@ namespace big_data.Models
         public CompClassification? Classification { get; set; }
 
         // Navigation properties for related contact details
-        public ICollection<Contact> Contacts { get; set; }
+        public ICollection<Contact> Contacts { get; set; } = [];
+
 
     }
-
+    public enum CompClassification
+    {
+        GoodMatch,
+        FuckYou,
+        Ecommerce,
+        LowChance
+    }
 }
 
-public enum CompClassification
-{
-    goodMatch,
-    fuckYou,
-    ecommerce,
-    lowChance
-}

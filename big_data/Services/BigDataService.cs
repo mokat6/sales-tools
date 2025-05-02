@@ -1,85 +1,73 @@
-using BigData;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Google.Protobuf.WellKnownTypes;
+using ProtoApi = big_data.Proto;
+using Modelz = big_data.Models;
+using big_data.Mappers;
+using big_data.Proto;
 
-
-public class BigDataService : BigDataSuckers.BigDataSuckersBase
+namespace big_data.Services
 {
-    private readonly BigDataContext _context;
-    private readonly ILogger<BigDataService> _logger;
 
-    public BigDataService(BigDataContext context, ILogger<BigDataService> logger)
+
+
+    public class BigDataService : ProtoApi.BigDataSuckers.BigDataSuckersBase
     {
-        _context = context;
-        _logger = logger;
-    }
+        private readonly BigDataContext _context;
+        private readonly ILogger<BigDataService> _logger;
 
-    public override async Task<ListCompaniesResponse> ListCompanies(ListCompaniesRequest request, ServerCallContext context)
-    {
-        var companies = await _context.Companiezz.ToListAsync();
-
-        var DtoList = companies.Select(MapToGrpcCompany);
-        ListCompaniesResponse response = new()
+        public BigDataService(BigDataContext context, ILogger<BigDataService> logger)
         {
-            NextCursor = "curse you 123 lol"
-        };
-        response.Companies.AddRange(DtoList);
-        // return Task.FromResult(response);
+            _context = context;
+            _logger = logger;
+        }
 
-        return response;
-
-    }
-
-    public override async Task<GetCompanyContactsResponse> GetCompanyContacts(GetCompanyContactsRequest request, ServerCallContext context)
-    {
-        var contactsFetched = await _context.ContactsLOL.Where(contact => contact.CompanyId == request.CompanyId).ToListAsync();
-
-        var response = new GetCompanyContactsResponse();
-        response.Contacts.AddRange(contactsFetched.Select(MapToGrpcCompany));
-
-        return response;
-
-    }
-
-
-    private static BigData.Company MapToGrpcCompany(big_data.Models.Company c)
-    {
-        return new BigData.Company
+        public override async Task<ProtoApi.ListCompaniesResponse> ListCompanies(ProtoApi.ListCompaniesRequest request, ServerCallContext context)
         {
-            Id = c.Id,
-            CompanyName = c.CompanyName ?? "",
-            Country = c.Country ?? "",
-            City = c.City ?? "",
-            FullAddress = c.FullAddress ?? "",
-            Website = c.Website ?? "",
-            CategoryGoogle = c.CategoryGoogle ?? "",
-            RatingGoogle = (double?)c.RatingGoogle,
+            var companies = await _context.Companiezz.ToListAsync();
 
-            RatedCount = c.RatedCount ?? "",
-            GoogleMapsUrl = c.GoogleMapsUrl ?? "",
-            BigFishScore = c.BigFishScore,
-            Classification = c.Classification.HasValue
-    ? (BigData.CompClassification)c.Classification.Value
-    : BigData.CompClassification.Unspecified,
-        };
+            var DtoList = companies.Select(CompanyMapper.EntityToGrpc);
+            ProtoApi.ListCompaniesResponse response = new()
+            {
+                NextCursor = "curse you 123 lol"
+            };
+            response.Companies.AddRange(DtoList);
+            // return Task.FromResult(response);
 
-    }
+            return response;
 
+        }
 
-    private static BigData.Contact MapToGrpcCompany(big_data.Models.Contact c)
-    {
-        return new BigData.Contact
+        public override async Task<ProtoApi.GetCompanyContactsResponse> GetCompanyContacts(ProtoApi.GetCompanyContactsRequest request, ServerCallContext context)
         {
-            Id = c.Id,
-            CompanyId = c.CompanyId,
-            Value = c.Value,
-            Type = (BigData.ContactType)(int)c.Type,
-            IsOnWhatsapp = c.IsOnWhatsApp,
-            ContactedFromEmail = c.ContactedFromEmail,
-            Checked = c.Checked,
-            Date = c.Date.HasValue ? Timestamp.FromDateTime(c.Date.Value.ToUniversalTime()) : null,
-            SentFrom = c.SentFrom
-        };
+            var contactsFetched = await _context.ContactsLOL.Where(contact => contact.CompanyId == request.CompanyId).ToListAsync();
+
+            var response = new ProtoApi.GetCompanyContactsResponse();
+            response.Contacts.AddRange(contactsFetched.Select(ContactMapper.EntityToGrpcFull));
+
+            return response;
+
+        }
+
+        public override async Task<ProtoApi.Contact> AddContact(ProtoApi.AddContactRequest request, ServerCallContext context)
+        {
+            var entity = ContactMapper.GrpcToEntity(request);
+            await _context.AddAsync(entity);
+            await _context.SaveChangesAsync();
+
+            return ContactMapper.EntityToGrpcFull(entity);
+
+        }
+        public override async Task<Empty> DeleteContact(DeleteContactRequest request, ServerCallContext context)
+        {
+            var contact = await _context.ContactsLOL.FindAsync(request.ContactId);
+            if (contact == null) throw new RpcException(new Status(StatusCode.NotFound, "Contact not found"));
+
+            _context.ContactsLOL.Remove(contact);
+            await _context.SaveChangesAsync();
+            return new Empty();
+
+        }
+
     }
 }

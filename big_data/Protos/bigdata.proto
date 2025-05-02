@@ -1,9 +1,10 @@
 syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 
-option csharp_namespace = "BigData";
+option csharp_namespace = "big_data.Proto";
 
 package bigdata;
 
@@ -11,6 +12,14 @@ package bigdata;
 service BigDataSuckers {
   rpc ListCompanies (ListCompaniesRequest) returns (ListCompaniesResponse);
   rpc GetCompanyContacts (GetCompanyContactsRequest) returns (GetCompanyContactsResponse);
+  rpc AddContact (AddContactRequest) returns (Contact);
+  rpc DeleteContact (DeleteContactRequest) returns (google.protobuf.Empty);
+}
+
+
+// -- DELETE --
+message DeleteContactRequest {
+  int64 contact_id = 1;
 }
 
 
@@ -32,15 +41,15 @@ message ListCompaniesResponse {
 
 message Company {
   int64 id = 1;
-  google.protobuf.StringValue company_name = 2;
-  google.protobuf.StringValue country = 3;
-  google.protobuf.StringValue city = 4;
-  google.protobuf.StringValue full_address = 5;
-  google.protobuf.StringValue website = 6;
-  google.protobuf.StringValue category_google = 7;
+  string company_name = 2;
+  string country = 3;
+  string city = 4;
+  string full_address = 5;
+  string website = 6;
+  string category_google = 7;
   google.protobuf.DoubleValue rating_google = 8;
-  google.protobuf.StringValue rated_count = 9;
-  google.protobuf.StringValue google_maps_url = 10;
+  string rated_count = 9;
+  string google_maps_url = 10;
   google.protobuf.Int32Value big_fish_score = 11;
   CompClassification Classification = 12; // `class` is reserved word in many languages!
 }
@@ -64,10 +73,9 @@ message Contact {
   ContactType type = 4;                  // Type of the contact (phone, email, etc.)
 
 google.protobuf.BoolValue is_on_whatsapp = 6;
-  google.protobuf.StringValue contacted_from_email = 7;
-  google.protobuf.BoolValue checked = 8;
-  google.protobuf.Timestamp date = 9;
-  google.protobuf.StringValue sent_from = 10;
+  string contacted_from_email = 7;       // email contact type only
+  google.protobuf.BoolValue checked = 8;  // has been handled, contacted or sth
+  google.protobuf.Timestamp date = 9;     // last contact
 }
 
 // --- Enum for Contact Types ---
@@ -89,4 +97,14 @@ enum CompClassification {
   FUCK_YOU = 2;
   ECOMMERCE = 3;
   GIMME_SOME_LOVE = 4;
+}
+
+message AddContactRequest {
+  int64 company_id = 1;
+  string value = 2;
+  ContactType type = 3;
+  google.protobuf.BoolValue is_on_whatsapp = 4;
+  string contacted_from_email = 5;
+  google.protobuf.BoolValue checked = 6;
+  google.protobuf.Timestamp date = 7;
 }
