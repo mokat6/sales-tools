@@ -4,7 +4,9 @@ using Google.Protobuf.WellKnownTypes;
 using ProtoApi = big_data.Proto;
 using Modelz = big_data.Models;
 using big_data.Mappers;
+using System.Text.Json;
 using big_data.Proto;
+
 
 namespace big_data.Services
 {
@@ -38,6 +40,42 @@ namespace big_data.Services
 
         }
 
+        public override async Task<Empty> DeleteCompany(ProtoApi.DeleteCompanyRequest request, ServerCallContext context)
+        {
+            var entity = await _context.Companiezz.FindAsync(request.Id);
+            if (entity == null) throw new RpcException(new Status(StatusCode.NotFound, "Company not found"));
+
+            _context.Companiezz.Remove(entity);
+            await _context.SaveChangesAsync();
+            return new Empty();
+        }
+
+        public override async Task<ProtoApi.Company> AddCompany(ProtoApi.AddCompanyRequest request, ServerCallContext context)
+        {
+
+            var entity = CompanyMapper.GrpcToEntity(request);
+            await _context.Companiezz.AddAsync(entity);
+
+            await _context.SaveChangesAsync();
+
+            return CompanyMapper.EntityToGrpc(entity);
+
+        }
+
+        public override async Task<Company> UpdateCompany(UpdateCompanyRequest request, ServerCallContext context)
+        {
+            var entity = await _context.Companiezz.SingleOrDefaultAsync(contact => contact.Id == request.Id);
+
+            if (entity == null) throw new RpcException(new Status(StatusCode.NotFound, "Company not found"));
+
+            CompanyMapper.UpdateCompany(request, entity);
+            _context.Companiezz.Update(entity);
+            await _context.SaveChangesAsync();
+
+            return CompanyMapper.EntityToGrpc(entity);
+
+        }
+
         public override async Task<ProtoApi.GetCompanyContactsResponse> GetCompanyContacts(ProtoApi.GetCompanyContactsRequest request, ServerCallContext context)
         {
             var contactsFetched = await _context.ContactsLOL.Where(contact => contact.CompanyId == request.CompanyId).ToListAsync();
@@ -52,13 +90,13 @@ namespace big_data.Services
         public override async Task<ProtoApi.Contact> AddContact(ProtoApi.AddContactRequest request, ServerCallContext context)
         {
             var entity = ContactMapper.GrpcToEntity(request);
-            await _context.AddAsync(entity);
+            await _context.ContactsLOL.AddAsync(entity);
             await _context.SaveChangesAsync();
 
             return ContactMapper.EntityToGrpcFull(entity);
 
         }
-        public override async Task<Empty> DeleteContact(DeleteContactRequest request, ServerCallContext context)
+        public override async Task<Empty> DeleteContact(ProtoApi.DeleteContactRequest request, ServerCallContext context)
         {
             var contact = await _context.ContactsLOL.FindAsync(request.ContactId);
             if (contact == null) throw new RpcException(new Status(StatusCode.NotFound, "Contact not found"));
@@ -67,6 +105,19 @@ namespace big_data.Services
             await _context.SaveChangesAsync();
             return new Empty();
 
+        }
+
+        public override async Task<ProtoApi.Contact> UpdateContact(ProtoApi.UpdateContactRequest request, ServerCallContext context)
+        {
+            var entity = await _context.ContactsLOL.SingleOrDefaultAsync(contact => contact.Id == request.Id);
+
+            if (entity == null) throw new RpcException(new Status(StatusCode.NotFound, "Contact not found"));
+
+            ContactMapper.UpdateContact(request, entity);
+            _context.ContactsLOL.Update(entity);
+            await _context.SaveChangesAsync();
+
+            return ContactMapper.EntityToGrpcFull(entity);
         }
 
     }

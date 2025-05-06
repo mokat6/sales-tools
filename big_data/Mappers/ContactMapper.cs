@@ -2,6 +2,7 @@
 using ProtoApi = big_data.Proto;
 using Modelz = big_data.Models;
 using Google.Protobuf.WellKnownTypes;
+using Microsoft.AspNetCore.StaticAssets;
 
 namespace big_data.Mappers
 {
@@ -36,6 +37,17 @@ namespace big_data.Mappers
                 Checked = c.Checked,
                 Date = c.Date.HasValue ? Timestamp.FromDateTime(c.Date.Value.ToUniversalTime()) : null,
             };
+        }
+
+        public static void UpdateContact(ProtoApi.UpdateContactRequest request, Modelz.Contact entity)
+        {
+            if (request.HasCompanyId) entity.CompanyId = request.CompanyId;
+            if (request.HasValue) entity.Value = request.Value;
+            if (request.HasType) entity.Type = (Modelz.ContactType)request.Type;
+            if (request.IsOnWhatsapp != null) entity.IsOnWhatsApp = request.IsOnWhatsapp;
+            if (request.HasContactedFromEmail) entity.ContactedFromEmail = request.ContactedFromEmail;
+            if (request.Checked != null) entity.Checked = request.Checked;
+            if (request.Date != null) entity.Date = request.Date.ToDateTime();
         }
 
     }

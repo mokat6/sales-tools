@@ -17,11 +17,12 @@ namespace big_data.Models
 
     public enum ContactType
     {
-        Email,
-        PhoneNumber,
-        Facebook,
-        Instagram,
-        LinkedIn,
-        Other
+        Unspecified = 0, // default, should never be used
+        Email = 1,
+        PhoneNumber = 2,
+        Facebook = 3,
+        Instagram = 4,
+        LinkedIn = 5,
+        Other = 6
     }
 }
