@@ -26,17 +26,18 @@ namespace big_data.Mappers
 
         public static ProtoApi.Contact EntityToGrpcFull(Modelz.Contact c)
         {
-            return new ProtoApi.Contact
-            {
-                Id = c.Id,
-                CompanyId = c.CompanyId,
-                Value = c.Value,
-                Type = (ProtoApi.ContactType)(int)c.Type,
-                IsOnWhatsapp = c.IsOnWhatsApp,
-                ContactedFromEmail = c.ContactedFromEmail,
-                Checked = c.Checked,
-                Date = c.Date.HasValue ? Timestamp.FromDateTime(c.Date.Value.ToUniversalTime()) : null,
-            };
+            var grpc = new ProtoApi.Contact();
+
+            grpc.Id = c.Id;
+            grpc.CompanyId = c.CompanyId;
+            if (c.Value != null) grpc.Value = c.Value;
+            grpc.Type = (ProtoApi.ContactType)c.Type;
+            if (c.IsOnWhatsapp != null) grpc.IsOnWhatsapp = c.IsOnWhatsapp;
+            if (c.ContactedFromEmail != null) grpc.ContactedFromEmail = c.ContactedFromEmail;
+            if (c.Checked != null) grpc.Checked = c.Checked;
+            if (c.Date.HasValue) grpc.Date = Timestamp.FromDateTime(c.Date.Value.ToUniversalTime());
+
+            return grpc;
         }
 
         public static void UpdateContact(ProtoApi.UpdateContactRequest request, Modelz.Contact entity)
@@ -44,7 +45,7 @@ namespace big_data.Mappers
             if (request.HasCompanyId) entity.CompanyId = request.CompanyId;
             if (request.HasValue) entity.Value = request.Value;
             if (request.HasType) entity.Type = (Modelz.ContactType)request.Type;
-            if (request.IsOnWhatsapp != null) entity.IsOnWhatsApp = request.IsOnWhatsapp;
+            if (request.IsOnWhatsapp != null) entity.IsOnWhatsapp = request.IsOnWhatsapp;
             if (request.HasContactedFromEmail) entity.ContactedFromEmail = request.ContactedFromEmail;
             if (request.Checked != null) entity.Checked = request.Checked;
             if (request.Date != null) entity.Date = request.Date.ToDateTime();

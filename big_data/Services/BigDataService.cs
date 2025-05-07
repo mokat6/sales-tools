@@ -82,7 +82,6 @@ namespace big_data.Services
 
             var response = new ProtoApi.GetCompanyContactsResponse();
             response.Contacts.AddRange(contactsFetched.Select(ContactMapper.EntityToGrpcFull));
-
             return response;
 
         }
