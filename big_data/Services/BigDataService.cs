@@ -42,7 +42,10 @@ namespace big_data.Services
 
         public override async Task<Empty> DeleteCompany(ProtoApi.DeleteCompanyRequest request, ServerCallContext context)
         {
+            Console.WriteLine("id is " + request.Id);
             var entity = await _context.Companiezz.FindAsync(request.Id);
+            Console.WriteLine("entity is " + entity);
+
             if (entity == null) throw new RpcException(new Status(StatusCode.NotFound, "Company not found"));
 
             _context.Companiezz.Remove(entity);

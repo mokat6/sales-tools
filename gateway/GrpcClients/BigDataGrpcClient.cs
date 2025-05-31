@@ -28,6 +28,23 @@ namespace gatewayRoot.Services
             return [.. response.Companies.Select(CompanyMapper.ToDto)];
         }
 
+        public async Task DeleteCompanyAsync(long id)
+        {
+            Console.WriteLine(id);
+            var request = new ProtoApi.DeleteCompanyRequest()
+            {
+                Id = id
+            };
+
+            await _client.DeleteCompanyAsync(request);
+        }
+
+        // return Task is return `204 No Content`
+        public async Task PatchCompanyAsync(long id, PatchCompanyDto pathDto)
+        {
+            var request = CompanyMapper.ToUpdateCompanyRequest(id, pathDto);
+            await _client.UpdateCompanyAsync(request);
+        }
 
         public async Task<List<ContactDto>> GetCompanyContactsAsync(long compId)
         {

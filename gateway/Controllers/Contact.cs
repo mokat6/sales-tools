@@ -14,7 +14,7 @@ namespace GatewayRoot.Controllers
         {
             _bigDataClient = bigDataClient;
         }
-        [HttpGet]
+        [HttpGet(Name = "GetCompanyContacts")]
         public async Task<IEnumerable<ContactDto>> Get([FromQuery] long compId)
 
         {

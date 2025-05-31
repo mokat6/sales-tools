@@ -1,10 +1,14 @@
+using System.Text.Json.Serialization;
 using ProtoApi = big_data.Proto;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddControllers(); // Add services for controllers
+builder.Services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    }); ; // Add services for controllers
 builder.Services.AddEndpointsApiExplorer(); // Add OpenAPI (Swagger) support
 builder.Services.AddSwaggerGen(); // Add Swagger generator
 
@@ -19,8 +23,30 @@ builder.Services.AddGrpcClient<ProtoApi.BigDataSuckers.BigDataSuckersClient>(o =
 
 builder.Services.AddScoped<gatewayRoot.Services.BigDataGrpcClient>();
 //--------------------
+// CORS ---------------
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllLocalhost", policy =>
+    {
+        policy
+            .SetIsOriginAllowed(origin =>
+                new Uri(origin).Host == "localhost")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+//  -------
+
+
+
+
 
 var app = builder.Build();
+
+
+app.UseCors("AllowAllLocalhost");  // apply CORS policy
 
 // Configure the HTTP request pipeline.
 Console.WriteLine("!!!!!!! dev env");
@@ -28,7 +54,7 @@ Console.WriteLine(app.Environment.IsDevelopment());
 Console.WriteLine(app.Environment);
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    // app.MapOpenApi(); needed in minimal API
     app.UseSwagger(); // Enable Swagger
     app.UseSwaggerUI(); // Enable Swagger UI
 
