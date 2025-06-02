@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
 using ProtoApi = big_data.Proto;
 
@@ -5,12 +6,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddControllers().AddJsonOptions(options =>
+// builder.Services.AddControllers().AddJsonOptions(options =>
+//     {
+//         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+//     }); ; // Add services for controllers
+
+
+// changed to this, to enable JSON patch. needed for partial updates - PATCH.
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
     {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    }); ; // Add services for controllers
+        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+    });
+
 builder.Services.AddEndpointsApiExplorer(); // Add OpenAPI (Swagger) support
-builder.Services.AddSwaggerGen(); // Add Swagger generator
+builder.Services.AddSwaggerGen(c =>
+{
+
+    // enables XML description. /// comments in controllers
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+}); ;
 
 builder.Services.AddOpenApi();
 

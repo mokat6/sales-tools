@@ -60,17 +60,21 @@ namespace big_data.Mappers
 
         public static void UpdateCompany(ProtoApi.UpdateCompanyRequest request, Modelz.Company entity)
         {
-            if (request.HasCompanyName) entity.CompanyName = request.CompanyName;
-            if (request.HasCountry) entity.Country = request.Country;
-            if (request.HasCity) entity.City = request.City;
-            if (request.HasFullAddress) entity.FullAddress = request.FullAddress;
-            if (request.HasWebsite) entity.Website = request.Website;
-            if (request.HasCategoryGoogle) entity.CategoryGoogle = request.CategoryGoogle;
-            if (request.HasRatingGoogle) entity.RatingGoogle = (decimal)request.RatingGoogle;
-            if (request.HasRatedCount) entity.RatedCount = request.RatedCount;
-            if (request.HasGoogleMapsUrl) entity.GoogleMapsUrl = request.GoogleMapsUrl;
-            if (request.HasBigFishScore) entity.BigFishScore = request.BigFishScore;
-            if (request.HasClassification) entity.Classification = (Modelz.CompClassification)request.Classification;
+            Console.Write("REQUEST -- ");
+            Console.WriteLine(request);
+            Console.Write("ENTITY -- ");
+            Console.WriteLine(entity);
+            // if (request.HasCompanyName) entity.CompanyName = request.CompanyName;
+            // if (request.HasCountry) entity.Country = request.Country;
+            // if (request.HasCity) entity.City = request.City;
+            // if (request.HasFullAddress) entity.FullAddress = request.FullAddress;
+            // if (request.HasWebsite) entity.Website = request.Website;
+            // if (request.HasCategoryGoogle) entity.CategoryGoogle = request.CategoryGoogle;
+            // if (request.HasRatingGoogle) entity.RatingGoogle = (decimal)request.RatingGoogle;
+            // if (request.HasRatedCount) entity.RatedCount = request.RatedCount;
+            // if (request.HasGoogleMapsUrl) entity.GoogleMapsUrl = request.GoogleMapsUrl;
+            // if (request.HasBigFishScore) entity.BigFishScore = request.BigFishScore;
+            // if (request.HasClassification) entity.Classification = (Modelz.CompClassification)request.Classification;
         }
     }
 }

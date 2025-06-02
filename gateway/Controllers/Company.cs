@@ -2,6 +2,7 @@ using gatewayRoot.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using gatewayRoot.Services;
 using Grpc.Core;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace GatewayRoot.Controllers
 {
@@ -43,13 +44,28 @@ namespace GatewayRoot.Controllers
                 return StatusCode(500, $"gRPC error: {ex.Status.Detail}");
             }
         }
-
+        /// <summary>
+        /// Applies a JSON Patch to a company.
+        /// </summary>
+        /// <remarks>
+        /// The request body must follow the <a href="https://tools.ietf.org/html/rfc6902">JSON Patch (RFC 6902)</a> format:
+        ///
+        /// ```json
+        /// [
+        ///   { "op": "replace", "path": "/name", "value": "Acme Inc." },
+        ///   { "op": "remove", "path": "/isObsolete" }
+        /// ]
+        /// ```
+        ///
+        /// **Note:** Ignore `operationType` in the schema — it's an internal property and not required.
+        /// </remarks>
         [HttpPatch("{id}", Name = "PatchCompany")]
-        public async Task<IActionResult> PatchCompany(long id, [FromBody] PatchCompanyDto patchCompanyDto)
+        [Consumes("application/json-patch+json")]
+        public async Task<IActionResult> PatchCompany(long id, [FromBody] JsonPatchDocument<PatchCompanyDto> patchDoc)
         {
             try
             {
-                await _bigDataClient.PatchCompanyAsync(id, patchCompanyDto);
+                await _bigDataClient.PatchCompanyAsync(id, patchDoc);
                 return NoContent();
             }
             catch (RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.NotFound)

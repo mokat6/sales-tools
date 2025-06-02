@@ -4,6 +4,12 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+<!-- Enable XML comments in controllers used as documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn> <!-- optional: hide missing XML doc warnings -->
+<!--  -->
+
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +20,9 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Google.Protobuf" Version="3.30.2" />
+    
+    <!-- enables JSON Patch support -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.5" />
 
     <!-- Optional: OpenAPI/Swagger UI for your REST API -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />

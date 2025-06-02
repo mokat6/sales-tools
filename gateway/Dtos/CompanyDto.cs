@@ -15,6 +15,6 @@ namespace gatewayRoot.Dtos
         public string? RatedCount { get; set; }
         public string? GoogleMapsUrl { get; set; }
         public int? BigFishScore { get; set; }
-        public ProtoApi.CompClassification? Classification { get; set; }
+        public string? Classification { get; set; }
     }
 }

@@ -4,6 +4,11 @@ using ProtoApi = big_data.Proto;
 using Grpc.Net.Client;
 using gatewayRoot.Dtos;
 using gatewayRoot.Mappers;
+using Microsoft.AspNetCore.JsonPatch;
+using System.Dynamic;
+using Google.Protobuf.WellKnownTypes;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace gatewayRoot.Services
 {
@@ -40,10 +45,37 @@ namespace gatewayRoot.Services
         }
 
         // return Task is return `204 No Content`
-        public async Task PatchCompanyAsync(long id, PatchCompanyDto pathDto)
+        public async Task PatchCompanyAsync(long id, JsonPatchDocument<PatchCompanyDto> patchDoc)
         {
-            var request = CompanyMapper.ToUpdateCompanyRequest(id, pathDto);
-            await _client.UpdateCompanyAsync(request);
+            Console.WriteLine("GATEWAY grpc client start");
+            var dto = new PatchCompanyDto();
+            patchDoc.ApplyTo(dto);
+            Console.WriteLine("GGG before creating company object");
+            var company = CompanyMapper.PatchDtoToGrpc(id, dto);
+
+            Console.WriteLine("PATH DOC HERE!");
+            Console.WriteLine(JsonConvert.SerializeObject(patchDoc.Operations, Formatting.Indented));
+
+
+            var strategy = new SnakeCaseNamingStrategy();
+
+            var fieldMask = new FieldMask
+            {
+                Paths = {
+        patchDoc.Operations
+            .Select(op => string.Join(".", op.path.TrimStart('/').Split('/').Select(p => strategy.GetPropertyName(p, false))))
+            .Distinct()
+    }
+            };
+
+            Console.WriteLine("fieldMask");
+            Console.WriteLine(fieldMask);
+
+
+            var grpcRequest = new ProtoApi.UpdateCompanyRequest { Company = company, UpdateMask = fieldMask };
+
+            await _client.UpdateCompanyAsync(grpcRequest);
+
         }
 
         public async Task<List<ContactDto>> GetCompanyContactsAsync(long compId)

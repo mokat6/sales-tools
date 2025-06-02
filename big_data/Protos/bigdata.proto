@@ -2,6 +2,7 @@ syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
 
 
 option csharp_namespace = "big_data.Proto";
@@ -14,6 +15,7 @@ service BigDataSuckers {
   rpc DeleteCompany (DeleteCompanyRequest) returns (google.protobuf.Empty);
   rpc AddCompany (AddCompanyRequest) returns (Company);
   rpc UpdateCompany (UpdateCompanyRequest) returns (Company);
+  rpc GetCompany (GetCompanyRequest) returns (Company);
 
   rpc GetCompanyContacts (GetCompanyContactsRequest) returns (GetCompanyContactsResponse);
   rpc AddContact (AddContactRequest) returns (Contact);
@@ -46,18 +48,8 @@ message AddCompanyRequest {
 // -- UPDATE -- 
 
 message UpdateCompanyRequest {
-  int64 id = 1;
-  optional string company_name = 2;
-  optional string country = 3;
-  optional string city = 4;
-  optional string full_address = 5;
-  optional string website = 6;
-  optional string category_google = 7;
-  optional double rating_google = 8;
-  optional string rated_count = 9;
-  optional string google_maps_url = 10;
-  optional int32 big_fish_score = 11;
-  optional CompClassification Classification = 12;
+  Company company = 1;
+  google.protobuf.FieldMask update_mask = 2;
 }
 
 // CONTACTS -=-----------
@@ -95,6 +87,12 @@ message ListCompaniesResponse {
   repeated Company companies = 1; // List of companies
   string next_cursor = 2;         // Cursor for the next page, or empty if end
 }
+
+message GetCompanyRequest {
+  int64 id = 1;
+}
+
+
 
 // --- Company Model ---
 
