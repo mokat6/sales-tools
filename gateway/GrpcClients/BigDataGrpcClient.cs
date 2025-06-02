@@ -68,7 +68,6 @@ namespace gatewayRoot.Services
     }
             };
 
-            Console.WriteLine("fieldMask");
             Console.WriteLine(fieldMask);
 
 

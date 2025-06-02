@@ -3,78 +3,100 @@ using ProtoApi = big_data.Proto;
 using Modelz = big_data.Models;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.IdentityModel.Protocols;
+using Grpc.Core;
 
 namespace big_data.Mappers
 {
     static class CompanyMapper
     {
 
-        public static ProtoApi.Company EntityToGrpc(Modelz.Company c)
+        public static ProtoApi.Company EntityToGrpc(Modelz.Company entity)
         {
-            var protoCompany = new ProtoApi.Company
-            {
-                Id = c.Id,
-                CompanyName = c.CompanyName ?? "",
-                Country = c.Country ?? "",
-                City = c.City ?? "",
-                FullAddress = c.FullAddress ?? "",
-                Website = c.Website ?? "",
-                CategoryGoogle = c.CategoryGoogle ?? "",
-                // RatingGoogle = (double?)c.RatingGoogle,
-                RatedCount = c.RatedCount ?? "",
-                GoogleMapsUrl = c.GoogleMapsUrl ?? "",
-                // BigFishScore = c.BigFishScore.Value,
-                Classification = c.Classification.HasValue
-        ? (ProtoApi.CompClassification)c.Classification.Value
-        : ProtoApi.CompClassification.Unspecified,
-            };
+            var protoCompany = new ProtoApi.Company { Id = entity.Id };
 
-            if (c.BigFishScore.HasValue) protoCompany.BigFishScore = c.BigFishScore.Value;
-            if (c.RatingGoogle.HasValue) protoCompany.RatingGoogle = (double)c.RatingGoogle.Value;
+            if (entity.CompanyName != null) protoCompany.CompanyName = entity.CompanyName;
+            if (entity.Country != null) protoCompany.Country = entity.Country;
+            if (entity.City != null) protoCompany.City = entity.City;
+            if (entity.FullAddress != null) protoCompany.FullAddress = entity.FullAddress;
+            if (entity.Website != null) protoCompany.Website = entity.Website;
+            if (entity.CategoryGoogle != null) protoCompany.CategoryGoogle = entity.CategoryGoogle;
+            if (entity.RatedCount != null) protoCompany.RatedCount = entity.RatedCount;
+            if (entity.GoogleMapsUrl != null) protoCompany.GoogleMapsUrl = entity.GoogleMapsUrl;
+            if (entity.Classification.HasValue) protoCompany.Classification = (ProtoApi.CompClassification)entity.Classification.Value;
+
+            if (entity.BigFishScore.HasValue) protoCompany.BigFishScore = entity.BigFishScore.Value;
+            if (entity.RatingGoogle.HasValue) protoCompany.RatingGoogle = (double)entity.RatingGoogle.Value;
 
             return protoCompany;
         }
 
 
-        public static Modelz.Company GrpcToEntity(ProtoApi.AddCompanyRequest c)
+        public static Modelz.Company GrpcToEntity(ProtoApi.AddCompanyRequest protoCompany)
         {
-            var model = new Modelz.Company();
+            var entity = new Modelz.Company();
 
-            if (c.HasCompanyName) model.CompanyName = c.CompanyName;
-            if (c.HasCountry) model.Country = c.Country;
-            if (c.HasCity) model.City = c.City;
-            if (c.HasFullAddress) model.FullAddress = c.FullAddress;
-            if (c.HasWebsite) model.Website = c.Website;
-            if (c.HasCategoryGoogle) model.CategoryGoogle = c.CategoryGoogle;
-            if (c.HasRatingGoogle) model.RatingGoogle = (decimal)c.RatingGoogle;
-            if (c.HasRatedCount) model.RatedCount = c.RatedCount;
-            if (c.HasGoogleMapsUrl) model.GoogleMapsUrl = c.GoogleMapsUrl;
-            if (c.HasBigFishScore) model.BigFishScore = c.BigFishScore;
-            if (c.HasClassification)
-                model.Classification = (Modelz.CompClassification)c.Classification;
+            if (protoCompany.HasCompanyName) entity.CompanyName = protoCompany.CompanyName;
+            if (protoCompany.HasCountry) entity.Country = protoCompany.Country;
+            if (protoCompany.HasCity) entity.City = protoCompany.City;
+            if (protoCompany.HasFullAddress) entity.FullAddress = protoCompany.FullAddress;
+            if (protoCompany.HasWebsite) entity.Website = protoCompany.Website;
+            if (protoCompany.HasCategoryGoogle) entity.CategoryGoogle = protoCompany.CategoryGoogle;
+            if (protoCompany.HasRatingGoogle) entity.RatingGoogle = (decimal)protoCompany.RatingGoogle;
+            if (protoCompany.HasRatedCount) entity.RatedCount = protoCompany.RatedCount;
+            if (protoCompany.HasGoogleMapsUrl) entity.GoogleMapsUrl = protoCompany.GoogleMapsUrl;
+            if (protoCompany.HasBigFishScore) entity.BigFishScore = protoCompany.BigFishScore;
+            entity.Classification = (Modelz.CompClassification)protoCompany.Classification; // don't use null. just use 0 unspecified for "nothing / not set"
 
-            return model;
+            return entity;
 
 
         }
 
-        public static void UpdateCompany(ProtoApi.UpdateCompanyRequest request, Modelz.Company entity)
+        public static void PatchEntityFromGrpc(ProtoApi.Company grpcCompany, IEnumerable<string> updatePaths, Modelz.Company entity)
         {
-            Console.Write("REQUEST -- ");
-            Console.WriteLine(request);
-            Console.Write("ENTITY -- ");
-            Console.WriteLine(entity);
-            // if (request.HasCompanyName) entity.CompanyName = request.CompanyName;
-            // if (request.HasCountry) entity.Country = request.Country;
-            // if (request.HasCity) entity.City = request.City;
-            // if (request.HasFullAddress) entity.FullAddress = request.FullAddress;
-            // if (request.HasWebsite) entity.Website = request.Website;
-            // if (request.HasCategoryGoogle) entity.CategoryGoogle = request.CategoryGoogle;
-            // if (request.HasRatingGoogle) entity.RatingGoogle = (decimal)request.RatingGoogle;
-            // if (request.HasRatedCount) entity.RatedCount = request.RatedCount;
-            // if (request.HasGoogleMapsUrl) entity.GoogleMapsUrl = request.GoogleMapsUrl;
-            // if (request.HasBigFishScore) entity.BigFishScore = request.BigFishScore;
-            // if (request.HasClassification) entity.Classification = (Modelz.CompClassification)request.Classification;
+
+            foreach (var path in updatePaths)
+            {
+                switch (path)
+                {
+                    case "company_name":
+                        entity.CompanyName = grpcCompany.HasCompanyName ? grpcCompany.CompanyName : null;
+                        break;
+                    case "country":
+                        entity.Country = grpcCompany.HasCountry ? grpcCompany.Country : null;
+                        break;
+                    case "city":
+                        entity.City = grpcCompany.HasCity ? grpcCompany.City : null;
+                        break;
+                    case "full_address":
+                        entity.FullAddress = grpcCompany.HasFullAddress ? grpcCompany.FullAddress : null;
+                        break;
+                    case "website":
+                        entity.Website = grpcCompany.HasWebsite ? grpcCompany.Website : null;
+                        break;
+                    case "category_google":
+                        entity.CategoryGoogle = grpcCompany.HasCategoryGoogle ? grpcCompany.CategoryGoogle : null;
+                        break;
+                    case "rating_google":
+                        entity.RatingGoogle = grpcCompany.HasRatingGoogle ? (decimal)grpcCompany.RatingGoogle : null;
+                        break;
+                    case "rated_count":
+                        entity.RatedCount = grpcCompany.HasRatedCount ? grpcCompany.RatedCount : null;
+                        break;
+                    case "google_maps_url":
+                        entity.GoogleMapsUrl = grpcCompany.HasGoogleMapsUrl ? grpcCompany.GoogleMapsUrl : null;
+                        break;
+                    case "big_fish_score":
+                        entity.BigFishScore = grpcCompany.HasBigFishScore ? grpcCompany.BigFishScore : null;
+                        break;
+                    case "classification":
+                        entity.Classification = (Modelz.CompClassification)(int)grpcCompany.Classification;
+                        break;
+                    default:
+                        throw new RpcException(new Status(StatusCode.InvalidArgument, $"Unknown update mask path: {path}"));
+                }
+            }
+
         }
     }
 }

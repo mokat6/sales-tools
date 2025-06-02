@@ -30,7 +30,7 @@ static class CompanyMapper
     public static ProtoApi.Company PatchDtoToGrpc(long id, PatchCompanyDto dto)
     {
         var grpcCompany = new ProtoApi.Company() { Id = id };
-        grpcCompany.clear
+        // grpcCompany.clear
         // for real objects (obj, string) != null.   For value types like enum, number .HasValue()   when it's nullable.
         // if (dto.CompanyName != null) request.CompanyName = dto.CompanyName;
 

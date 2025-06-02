@@ -17,7 +17,9 @@ namespace big_data.Models
 
     public enum ContactType
     {
-        Unspecified = 0, // default, should never be used
+        // default, should never be used, because ContactType is not nullable
+        // can throw error if ContactType = 0. Like... if it is required
+        Unspecified = 0,
         Email = 1,
         PhoneNumber = 2,
         Facebook = 3,

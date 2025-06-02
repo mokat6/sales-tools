@@ -24,31 +24,32 @@ namespace big_data.Mappers
         }
 
 
-        public static ProtoApi.Contact EntityToGrpcFull(Modelz.Contact c)
+        public static ProtoApi.Contact EntityToGrpcFull(Modelz.Contact entity)
         {
             var grpc = new ProtoApi.Contact();
 
-            grpc.Id = c.Id;
-            grpc.CompanyId = c.CompanyId;
-            if (c.Value != null) grpc.Value = c.Value;
-            grpc.Type = (ProtoApi.ContactType)c.Type;
-            if (c.IsOnWhatsapp != null) grpc.IsOnWhatsapp = c.IsOnWhatsapp;
-            if (c.ContactedFromEmail != null) grpc.ContactedFromEmail = c.ContactedFromEmail;
-            if (c.Checked != null) grpc.Checked = c.Checked;
-            if (c.Date.HasValue) grpc.Date = Timestamp.FromDateTime(c.Date.Value.ToUniversalTime());
+            grpc.Id = entity.Id;
+            grpc.CompanyId = entity.CompanyId;
+            if (entity.Value != null) grpc.Value = entity.Value;
+            grpc.Type = (ProtoApi.ContactType)entity.Type;
+
+            if (entity.IsOnWhatsapp != null) grpc.IsOnWhatsapp = entity.IsOnWhatsapp;
+            if (entity.ContactedFromEmail != null) grpc.ContactedFromEmail = entity.ContactedFromEmail;
+            if (entity.Checked != null) grpc.Checked = entity.Checked;
+            if (entity.Date.HasValue) grpc.Date = Timestamp.FromDateTime(entity.Date.Value.ToUniversalTime());
 
             return grpc;
         }
 
-        public static void UpdateContact(ProtoApi.UpdateContactRequest request, Modelz.Contact entity)
+        public static void PutUpdateContact(ProtoApi.UpdateContactRequest request, Modelz.Contact entity)
         {
-            if (request.HasCompanyId) entity.CompanyId = request.CompanyId;
-            if (request.HasValue) entity.Value = request.Value;
-            if (request.HasType) entity.Type = (Modelz.ContactType)request.Type;
-            if (request.IsOnWhatsapp != null) entity.IsOnWhatsapp = request.IsOnWhatsapp;
-            if (request.HasContactedFromEmail) entity.ContactedFromEmail = request.ContactedFromEmail;
-            if (request.Checked != null) entity.Checked = request.Checked;
-            if (request.Date != null) entity.Date = request.Date.ToDateTime();
+            entity.CompanyId = request.CompanyId;
+            entity.Value = request.Value;
+            entity.Type = (Modelz.ContactType)request.Type;
+            entity.IsOnWhatsapp = request.HasIsOnWhatsapp ? request.IsOnWhatsapp : null;
+            entity.ContactedFromEmail = request.HasContactedFromEmail ? request.ContactedFromEmail : null;
+            entity.Checked = request.HasChecked ? request.Checked : null;
+            entity.Date = request.Date.ToDateTime();
         }
 
     }

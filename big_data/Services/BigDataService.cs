@@ -73,55 +73,10 @@ namespace big_data.Services
             var entity = await _context.Companiezz.SingleOrDefaultAsync(company => company.Id == updated.Id);
 
             if (entity == null) throw new RpcException(new Status(StatusCode.NotFound, "Company not found"));
-            // ----
-            foreach (var path in paths)
-            {
-                switch (path)
-                {
-                    case "company_name":
-                        entity.CompanyName = updated.CompanyName;
-                        break;
-                    case "country":
-                        entity.Country = updated.Country;
-                        break;
-                    case "city":
-                        entity.City = updated.City;
-                        break;
-                    case "full_address":
-                        entity.FullAddress = updated.FullAddress;
-                        break;
-                    case "website":
-                        entity.Website = updated.Website;
-                        break;
-                    case "category_google":
-                        entity.CategoryGoogle = updated.CategoryGoogle;
-                        break;
-                    case "rating_google":
-                        entity.RatingGoogle = (decimal)updated.RatingGoogle;
-                        break;
-                    case "rated_count":
-                        entity.RatedCount = updated.RatedCount;
-                        break;
-                    case "google_maps_url":
-                        entity.GoogleMapsUrl = updated.GoogleMapsUrl;
-                        break;
-                    case "big_fish_score":
-                        entity.BigFishScore = updated.BigFishScore;
-                        break;
-                    case "classification":
-                        entity.Classification = (Modelz.CompClassification)(int)updated.Classification;
-                        break;
-                    default:
-                        throw new RpcException(new Status(StatusCode.InvalidArgument, $"Unknown update mask path: {path}"));
-                }
-            }
-            // ----
 
+            CompanyMapper.PatchEntityFromGrpc(updated, paths, entity);
 
-
-
-            // CompanyMapper.UpdateCompany(request, entity);
-            // _context.Companiezz.Update(entity);
+            // _context.Companiezz.Update(entity);  // don't need. The entity is already tracked by EF. when retrieved, same obj here.
             await _context.SaveChangesAsync();
 
             return CompanyMapper.EntityToGrpc(entity);
@@ -164,8 +119,8 @@ namespace big_data.Services
 
             if (entity == null) throw new RpcException(new Status(StatusCode.NotFound, "Contact not found"));
 
-            ContactMapper.UpdateContact(request, entity);
-            _context.ContactsLOL.Update(entity);
+            ContactMapper.PutUpdateContact(request, entity);
+            // _context.ContactsLOL.Update(entity); // don't need, tracked entity.
             await _context.SaveChangesAsync();
 
             return ContactMapper.EntityToGrpcFull(entity);
