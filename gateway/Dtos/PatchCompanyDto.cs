@@ -1,6 +1,4 @@
-// same as CompanyDto, all fields nullable, not include ID. ID is included in URL
-
-using ProtoApi = big_data.Proto;
+//  TODO: delete this file. Not using. Using CompanyDto instead for Patch operations
 
 namespace gatewayRoot.Dtos
 {
@@ -20,7 +18,6 @@ namespace gatewayRoot.Dtos
         // keep the DTO not the `ProtoApi.CompClassification` 
         // why? decouple. PatchCompanyDto is part of your application logic or API layer — it shouldn’t directly depend on the gRPC-generated code
         // lets me change value names, add attributes, ...
-
         public CompClassificationDto? Classification { get; set; }
     }
 }

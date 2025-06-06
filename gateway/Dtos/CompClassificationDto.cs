@@ -1,9 +1,6 @@
-
 using System.ComponentModel.DataAnnotations;
 namespace gatewayRoot.Dtos
 {
-
-
     public enum CompClassificationDto
     {
         Unspecified = 0,

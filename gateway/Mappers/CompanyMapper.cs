@@ -1,33 +1,32 @@
 
 using gatewayRoot.Dtos;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using ProtoApi = big_data.Proto;
 
 namespace gatewayRoot.Mappers;
 
 static class CompanyMapper
 {
-    public static CompanyDto ToDto(ProtoApi.Company company)
+    public static CompanyDto ToDto(ProtoApi.Company grpc)
     {
         return new CompanyDto
         {
-            Id = company.Id,
-            CompanyName = company.CompanyName,
-            Country = company.Country,
-            City = company.City,
-            FullAddress = company.FullAddress,
-            Website = company.Website,
-            CategoryGoogle = company.CategoryGoogle,
-            RatingGoogle = company.HasRatingGoogle ? company.RatingGoogle : null,
-            RatedCount = company.RatedCount,
-            GoogleMapsUrl = company.GoogleMapsUrl,
-            BigFishScore = company.HasBigFishScore ? company.BigFishScore : null,
-            Classification = company.Classification == ProtoApi.CompClassification.Unspecified
-                ? null
-                : company.Classification.ToString()
+            Id = grpc.Id,
+            CompanyName = grpc.CompanyName,
+            Country = grpc.Country,
+            City = grpc.City,
+            FullAddress = grpc.FullAddress,
+            Website = grpc.Website,
+            CategoryGoogle = grpc.CategoryGoogle,
+            RatingGoogle = grpc.HasRatingGoogle ? grpc.RatingGoogle : null,
+            RatedCount = grpc.RatedCount,
+            GoogleMapsUrl = grpc.GoogleMapsUrl,
+            BigFishScore = grpc.HasBigFishScore ? grpc.BigFishScore : null,
+            Classification = (CompClassificationDto)grpc.Classification
         };
     }
 
-    public static ProtoApi.Company PatchDtoToGrpc(long id, PatchCompanyDto dto)
+    public static ProtoApi.Company PatchDtoToGrpc(long id, CompanyDto dto)
     {
         var grpcCompany = new ProtoApi.Company() { Id = id };
         // grpcCompany.clear

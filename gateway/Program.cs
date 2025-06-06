@@ -1,23 +1,28 @@
 using System.Reflection;
-using System.Text.Json.Serialization;
+using gatewayRoot.SwaggerFilters;
+using Newtonsoft.Json.Converters;
+
+// using System.Text.Json.Serialization;
 using ProtoApi = big_data.Proto;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+// THIS IS default serializer System.Text.Json  . you can use only one serializer. Not using default, using Newton because need JSON patch.
 // builder.Services.AddControllers().AddJsonOptions(options =>
 //     {
 //         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-//     }); ; // Add services for controllers
+//     });
 
 
 // changed to this, to enable JSON patch. needed for partial updates - PATCH.
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
     {
-        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+        options.SerializerSettings.Converters.Add(new StringEnumConverter()); // enums as strings in HTTP responses only. not swagger.json
     });
+
+
 
 builder.Services.AddEndpointsApiExplorer(); // Add OpenAPI (Swagger) support
 builder.Services.AddSwaggerGen(c =>
@@ -26,7 +31,13 @@ builder.Services.AddSwaggerGen(c =>
     // enables XML description. /// comments in controllers
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-}); ;
+
+    // SERIALIZE enum to string (not int) in swagger.json (also swagger docs)   
+    c.SchemaFilter<StringEnumSchemaFilter>();
+
+});//.AddSwaggerGenNewtonsoftSupport();    // this last .AddSwaggerGenNewtonSoftSupport() enables enum string values in swagger.json
+
+
 
 builder.Services.AddOpenApi();
 

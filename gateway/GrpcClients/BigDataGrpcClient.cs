@@ -45,10 +45,10 @@ namespace gatewayRoot.Services
         }
 
         // return Task is return `204 No Content`
-        public async Task PatchCompanyAsync(long id, JsonPatchDocument<PatchCompanyDto> patchDoc)
+        public async Task PatchCompanyAsync(long id, JsonPatchDocument<CompanyDto> patchDoc)
         {
             Console.WriteLine("GATEWAY grpc client start");
-            var dto = new PatchCompanyDto();
+            var dto = new CompanyDto();
             patchDoc.ApplyTo(dto);
             Console.WriteLine("GGG before creating company object");
             var company = CompanyMapper.PatchDtoToGrpc(id, dto);

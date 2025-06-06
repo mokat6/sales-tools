@@ -22,12 +22,12 @@
     <PackageReference Include="Google.Protobuf" Version="3.30.2" />
     
     <!-- enables JSON Patch support -->
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.5" />     <!-- json patch serializer -->  
 
-    <!-- Optional: OpenAPI/Swagger UI for your REST API -->
+    <!-- Swagger / OpenAPI UI -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+
   </ItemGroup>
 
   <ItemGroup>

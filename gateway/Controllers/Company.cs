@@ -61,7 +61,7 @@ namespace GatewayRoot.Controllers
         /// </remarks>
         [HttpPatch("{id}", Name = "PatchCompany")]
         [Consumes("application/json-patch+json")]
-        public async Task<IActionResult> PatchCompany(long id, [FromBody] JsonPatchDocument<PatchCompanyDto> patchDoc)
+        public async Task<IActionResult> PatchCompany(long id, [FromBody] JsonPatchDocument<CompanyDto> patchDoc)
         {
             try
             {
