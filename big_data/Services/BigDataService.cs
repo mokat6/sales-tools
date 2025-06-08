@@ -40,6 +40,14 @@ namespace big_data.Services
 
         }
 
+        public override async Task<big_data.Proto.Company> GetCompany(big_data.Proto.GetCompanyRequest request, ServerCallContext context)
+        {
+            var entity = await _context.Companiezz.FindAsync(request.Id);
+            if (entity == null) throw new RpcException(new Status(StatusCode.NotFound, "Company not found"));
+
+            return CompanyMapper.EntityToGrpc(entity);
+        }
+
         public override async Task<Empty> DeleteCompany(ProtoApi.DeleteCompanyRequest request, ServerCallContext context)
         {
             Console.WriteLine("id is " + request.Id);

@@ -1,4 +1,6 @@
-// File: Services/BigDataGrpcClient.cs
+// Need to catch errors when calling _client. methods
+// Because gRPC server throws errors when not found by id, etc
+
 using ProtoApi = big_data.Proto;
 
 using Grpc.Net.Client;
@@ -9,6 +11,7 @@ using System.Dynamic;
 using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
+using Grpc.Core;
 
 namespace gatewayRoot.Services
 {
@@ -44,8 +47,8 @@ namespace gatewayRoot.Services
             await _client.DeleteCompanyAsync(request);
         }
 
-        // return Task is return `204 No Content`
-        public async Task PatchCompanyAsync(long id, JsonPatchDocument<CompanyDto> patchDoc)
+        // to return Task is same as  return `204 No Content`
+        public async Task<CompanyDto> PatchCompanyAsync(long id, JsonPatchDocument<CompanyDto> patchDoc)
         {
             Console.WriteLine("GATEWAY grpc client start");
             var dto = new CompanyDto();
@@ -73,8 +76,8 @@ namespace gatewayRoot.Services
 
             var grpcRequest = new ProtoApi.UpdateCompanyRequest { Company = company, UpdateMask = fieldMask };
 
-            await _client.UpdateCompanyAsync(grpcRequest);
-
+            var returnedCompany = await _client.UpdateCompanyAsync(grpcRequest);
+            return CompanyMapper.ToDto(returnedCompany);
         }
 
         public async Task<List<ContactDto>> GetCompanyContactsAsync(long compId)
@@ -88,5 +91,20 @@ namespace gatewayRoot.Services
             return [.. response.Contacts.Select(ContactMapper.GrpcToDto)];
 
         }
+        public async Task<CompanyDto?> GetCompany(long compId)
+        {
+            var request = new ProtoApi.GetCompanyRequest { Id = compId };
+            try
+            {
+                var response = await _client.GetCompanyAsync(request);
+                return CompanyMapper.ToDto(response);
+            }
+            catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+            {
+                return null; // company not found - return null. it should be like that! REST API has if (null) return 404
+            }
+        }
     }
+
+
 }

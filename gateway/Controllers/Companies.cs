@@ -8,11 +8,11 @@ namespace GatewayRoot.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CompanyController : ControllerBase
+    public class CompaniesController : ControllerBase
     {
         private readonly BigDataGrpcClient _bigDataClient;
 
-        public CompanyController(BigDataGrpcClient bigDataClient)
+        public CompaniesController(BigDataGrpcClient bigDataClient)
         {
             _bigDataClient = bigDataClient;
         }
@@ -61,17 +61,29 @@ namespace GatewayRoot.Controllers
         /// </remarks>
         [HttpPatch("{id}", Name = "PatchCompany")]
         [Consumes("application/json-patch+json")]
-        public async Task<IActionResult> PatchCompany(long id, [FromBody] JsonPatchDocument<CompanyDto> patchDoc)
+        public async Task<ActionResult<CompanyDto>> PatchCompany(long id, [FromBody] JsonPatchDocument<CompanyDto> patchDoc)
         {
             try
             {
-                await _bigDataClient.PatchCompanyAsync(id, patchDoc);
-                return NoContent();
+                var updatedCompany = await _bigDataClient.PatchCompanyAsync(id, patchDoc);
+                return Ok(updatedCompany);
             }
             catch (RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
             {
                 return NotFound(ex.Status.Detail);
             }
+        }
+
+        [HttpGet("{id}", Name = "GetCompany")]
+        public async Task<ActionResult<CompanyDto>> GetCompany(long id)
+        {
+            var companyDto = await _bigDataClient.GetCompany(id);
+            if (companyDto == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(companyDto);
         }
 
     }
