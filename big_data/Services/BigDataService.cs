@@ -6,6 +6,9 @@ using Modelz = big_data.Models;
 using big_data.Mappers;
 
 using big_data.Proto;
+using Azure;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace big_data.Services
@@ -37,8 +40,99 @@ namespace big_data.Services
             // return Task.FromResult(response);
 
             return response;
-
         }
+
+        public override async Task<ListCompaniesByOffsetResponse> ListCompaniesByOffset(ListCompaniesByOffsetRequest request, ServerCallContext context)
+        {
+            var pageIndex = request.PageIndex;
+            var pageSize = request.PageSize;
+
+            // var skip = (page - 1) * pageSize; // starts with page 1
+            var skip = pageIndex * pageSize; // starts with page 0, Tanstack table starts with page 0
+
+            var totalCount = await _context.Companiezz.CountAsync();
+
+            var companies = await _context.Companiezz
+              .OrderBy(c => c.Id)
+              .Skip(skip)
+              .Take(pageSize)
+              .ToListAsync();
+            // Runs in memory, not in SQL. Don't mix it with EF SQL chain .OrderBy().Skip().Take().Select(), wrong.
+            var grpcCompanies = companies.Select(CompanyMapper.EntityToGrpc).ToList();
+
+
+
+            var response = new Proto.ListCompaniesByOffsetResponse
+            {
+                PageIndex = pageIndex,
+                TotalCount = totalCount,
+                PageSize = pageSize,
+
+            };
+            // class generated from protobuf, repeated field (the list), has getter, but no setter. Read only.
+            // type is not List<Company>, but RepeatedField<Company>
+            response.Companies.AddRange(grpcCompanies);
+            return response;
+        }
+
+        public override async Task<ListCompaniesWithCursorResponse> ListCompaniesWithCursor(ListCompaniesWithCursorRequest request, ServerCallContext context)
+        {
+            int pageSize = request.PageSize > 0 ? request.PageSize : 10;
+
+            string? cursor = request.Cursor;
+            string? nameCursor = null;
+            int? idCursor = null;
+
+            // Decode cursor if provided
+            if (!string.IsNullOrEmpty(cursor))
+            {
+                var decoded = Base64UrlEncoder.Decode(cursor);
+                var parts = decoded.Split('|');
+                if (parts.Length == 2)
+                {
+                    nameCursor = parts[0];
+                    idCursor = int.TryParse(parts[1], out var id) ? id : null;
+                }
+            }
+            // EF query
+            var query = _context.Companiezz.AsQueryable();
+
+            if (!string.IsNullOrEmpty(nameCursor) && idCursor.HasValue)
+            {
+                query = query.Where(c =>
+                    string.Compare(c.CompanyName, nameCursor) > 0 ||   // c.CompanyName > nameCursor  (c# doesn't allow comparing strings with `>`)
+                    (c.CompanyName == nameCursor && c.Id > idCursor.Value));
+            }
+
+            var companies = await query
+                .OrderBy(c => c.CompanyName)
+                .ThenBy(c => c.Id)
+                .Take(pageSize)
+                .ToListAsync();
+
+
+            // Build next cursor if there’s a next page
+            string? nextCursor = null;
+            if (companies.Count == pageSize)
+            {
+                var last = companies[^1];
+                var rawCursor = $"{last.CompanyName}|{last.Id}";
+                nextCursor = Base64UrlEncoder.Encode(rawCursor);
+
+            }
+
+            // TODO: cache totalCount, expensive operation
+            var totalCount = await _context.Companiezz.CountAsync();
+
+            return new ListCompaniesWithCursorResponse
+            {
+                Companies = { companies.Select(CompanyMapper.EntityToGrpc) },
+                NextCursor = nextCursor ?? "",
+                TotalCount = totalCount
+            };
+        }
+
+
 
         public override async Task<big_data.Proto.Company> GetCompany(big_data.Proto.GetCompanyRequest request, ServerCallContext context)
         {

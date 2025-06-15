@@ -12,6 +12,8 @@ package bigdata;
 
 service BigDataSuckers {
   rpc ListCompanies (ListCompaniesRequest) returns (ListCompaniesResponse);
+  rpc ListCompaniesByOffset (ListCompaniesByOffsetRequest) returns (ListCompaniesByOffsetResponse);
+  rpc ListCompaniesWithCursor (ListCompaniesWithCursorRequest) returns (ListCompaniesWithCursorResponse);
   rpc DeleteCompany (DeleteCompanyRequest) returns (google.protobuf.Empty);
   rpc AddCompany (AddCompanyRequest) returns (Company);
   rpc UpdateCompany (UpdateCompanyRequest) returns (Company);
@@ -91,8 +93,29 @@ message ListCompaniesResponse {
 message GetCompanyRequest {
   int64 id = 1;
 }
+// --
+message ListCompaniesByOffsetRequest {
+  int32 pageIndex = 1;
+  int32 pageSize = 2;
+}
 
+message ListCompaniesByOffsetResponse {
+  repeated Company companies =  1;
+  int32 totalCount = 2;
+  int32 pageIndex = 3;
+  int32 pageSize = 4;
+}
+// --
+message ListCompaniesWithCursorRequest {
+  int32 pageSize = 1;
+  optional string cursor = 2; 
+}
 
+message ListCompaniesWithCursorResponse {
+  repeated Company companies = 1;
+  string nextCursor = 2;
+  int32 totalCount = 3;
+}
 
 // --- Company Model ---
 // everything optional. string is scalar (primitive) in gRPC. Setter throws if null is assigned

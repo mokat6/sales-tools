@@ -12,6 +12,7 @@ using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Grpc.Core;
+using big_data.Proto;
 
 namespace gatewayRoot.Services
 {
@@ -24,17 +25,52 @@ namespace gatewayRoot.Services
             _client = client;
         }
 
-        public async Task<List<CompanyDto>> ListCompaniesAsync(int pageSize, string? cursor = "")
+        public async Task<CompaniesResponseOffset> ListCompaniesByOffsetAsync(int pageIndex, int pageSize)
         {
-            var request = new ProtoApi.ListCompaniesRequest()
+            var request = new ProtoApi.ListCompaniesByOffsetRequest
             {
-                PageSize = pageSize,
-                Cursor = cursor ?? ""
+                PageIndex = pageIndex,
+                PageSize = pageSize
             };
 
-            var response = await _client.ListCompaniesAsync(request);
-            return [.. response.Companies.Select(CompanyMapper.ToDto)];
+            var protoResponse = await _client.ListCompaniesByOffsetAsync(request);
+
+            var pagination = new PaginationDto
+            {
+                PageIndex = protoResponse.PageIndex,
+                PageSize = protoResponse.PageSize,
+                TotalCount = protoResponse.TotalCount,
+            };
+            var restResponse = new CompaniesResponseOffset
+            {
+                Companies = protoResponse.Companies.Select(CompanyMapper.ToDto),
+                Pagination = pagination
+
+            };
+            return restResponse;
         }
+
+        public async Task<CompaniesResponseCursor> ListCompaniesWithCursorAsync(int pageSize, string? cursor)
+        {
+            var rpcRequest = new ListCompaniesWithCursorRequest
+            {
+                PageSize = pageSize
+            };
+            if (cursor != null) rpcRequest.Cursor = cursor;
+
+            var protoResponse = await _client.ListCompaniesWithCursorAsync(rpcRequest);
+            var pagination = new PaginationCursorDto(protoResponse.TotalCount, protoResponse.NextCursor);
+
+
+            var restResponse = new CompaniesResponseCursor
+            {
+                Companies = protoResponse.Companies.Select(CompanyMapper.ToDto),
+                Pagination = pagination
+            };
+
+            return restResponse;
+        }
+
 
         public async Task DeleteCompanyAsync(long id)
         {

@@ -18,12 +18,26 @@ namespace GatewayRoot.Controllers
         }
 
         // if no Name, it will randomly give you name, and randomly rename in the future... needs a stable name.
-        // sets operationId = "ListCompanies" in the contract
+        // sets operationId = "ListCompanies" in the contract, this is for generated SDK
         [HttpGet(Name = "ListCompanies")]
-        public async Task<IEnumerable<CompanyDto>> Get([FromQuery] int pageSize = 12, [FromQuery] string? cursor = "")
+        public async Task<ActionResult<CompaniesResponseOffset>> GetCompaniesByOffset([FromQuery] int pageIndex = 0, [FromQuery] int pageSize = 12)
 
         {
-            return await _bigDataClient.ListCompaniesAsync(pageSize, cursor);
+            // return await _bigDataClient.ListCompaniesAsync(pageSize, cursor);
+
+            var response = await _bigDataClient.ListCompaniesByOffsetAsync(pageIndex, pageSize);
+
+            return Ok(response);
+        }
+
+        [HttpGet("cursor", Name = "ListCompaninesWithCursor")]
+        public async Task<ActionResult<CompaniesResponseCursor>> GetWithCursor(
+            [FromQuery] int pageSize = 12,
+            [FromQuery] string? cursor = null
+            )
+        {
+            var response = await _bigDataClient.ListCompaniesWithCursorAsync(pageSize, cursor);
+            return Ok(response);
         }
 
         [HttpDelete("{id}", Name = "DeleteCompany")]
