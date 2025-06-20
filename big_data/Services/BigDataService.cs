@@ -9,6 +9,8 @@ using big_data.Proto;
 using Azure;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using big_data.Dtos;
+using System.Text.Json;
 
 
 namespace big_data.Services
@@ -81,19 +83,24 @@ namespace big_data.Services
 
             string? cursor = request.Cursor;
             string? nameCursor = null;
-            int? idCursor = null;
+            long? idCursor = null;
 
             // Decode cursor if provided
             if (!string.IsNullOrEmpty(cursor))
             {
-                var decoded = Base64UrlEncoder.Decode(cursor);
-                var parts = decoded.Split('|');
-                if (parts.Length == 2)
+                try
                 {
-                    nameCursor = parts[0];
-                    idCursor = int.TryParse(parts[1], out var id) ? id : null;
+                    var decoded = Base64UrlEncoder.Decode(cursor);
+                    var cursorObj = JsonSerializer.Deserialize<CursorDto>(decoded);
+                    nameCursor = cursorObj?.Name;
+                    idCursor = cursorObj?.Id;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Invalid cursor: " + ex.Message);
                 }
             }
+
             // EF query
             var query = _context.Companiezz.AsQueryable();
 
@@ -116,7 +123,12 @@ namespace big_data.Services
             if (companies.Count == pageSize)
             {
                 var last = companies[^1];
-                var rawCursor = $"{last.CompanyName}|{last.Id}";
+                var cursorObj = new CursorDto
+                {
+                    Name = last.CompanyName,
+                    Id = last.Id
+                };
+                var rawCursor = JsonSerializer.Serialize(cursorObj);
                 nextCursor = Base64UrlEncoder.Encode(rawCursor);
 
             }

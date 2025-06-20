@@ -54,11 +54,10 @@ builder.Services.AddScoped<gatewayRoot.Services.BigDataGrpcClient>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllLocalhost", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
         policy
-            .SetIsOriginAllowed(origin =>
-                new Uri(origin).Host == "localhost")
+            .AllowAnyOrigin()    // <-- or use .WithOrigins("http://your-frontend-ip:port")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -73,7 +72,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 
-app.UseCors("AllowAllLocalhost");  // apply CORS policy
+app.UseCors("AllowAll");  // apply CORS policy
 
 // Configure the HTTP request pipeline.
 Console.WriteLine("!!!!!!! dev env");
