@@ -50,13 +50,13 @@ namespace gatewayRoot.Services
             return restResponse;
         }
 
-        public async Task<CompaniesResponseCursor> ListCompaniesWithCursorAsync(int pageSize, string? cursor)
+        public async Task<CompaniesResponseCursor> ListCompaniesWithCursorAsync(int? pageSize, string? cursor, string? search)
         {
-            var rpcRequest = new ListCompaniesWithCursorRequest
-            {
-                PageSize = pageSize
-            };
+            var rpcRequest = new ListCompaniesWithCursorRequest();
+
+            if (pageSize.HasValue) rpcRequest.PageSize = pageSize.Value;
             if (cursor != null) rpcRequest.Cursor = cursor;
+            if (search != null) rpcRequest.Search = search;
 
             var protoResponse = await _client.ListCompaniesWithCursorAsync(rpcRequest);
             var pagination = new PaginationCursorDto(protoResponse.TotalCount, protoResponse.NextCursor);

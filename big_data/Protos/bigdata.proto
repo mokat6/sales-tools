@@ -107,8 +107,9 @@ message ListCompaniesByOffsetResponse {
 }
 // --
 message ListCompaniesWithCursorRequest {
-  int32 pageSize = 1;
+  optional int32 pageSize = 1;
   optional string cursor = 2; 
+  optional string search = 3;
 }
 
 message ListCompaniesWithCursorResponse {

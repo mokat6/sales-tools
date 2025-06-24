@@ -79,7 +79,8 @@ namespace big_data.Services
 
         public override async Task<ListCompaniesWithCursorResponse> ListCompaniesWithCursor(ListCompaniesWithCursorRequest request, ServerCallContext context)
         {
-            int pageSize = request.PageSize > 0 ? request.PageSize : 10;
+            int pageSize = request.HasPageSize ? request.PageSize : 10;
+            string search = request.Search;
 
             string? cursor = request.Cursor;
             string? nameCursor = null;
@@ -103,6 +104,12 @@ namespace big_data.Services
 
             // EF query
             var query = _context.Companiezz.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(c =>
+                            c.CompanyName != null && c.CompanyName.Contains(search));
+            }
 
             if (!string.IsNullOrEmpty(nameCursor) && idCursor.HasValue)
             {
@@ -134,7 +141,9 @@ namespace big_data.Services
             }
 
             // TODO: cache totalCount, expensive operation
-            var totalCount = await _context.Companiezz.CountAsync();
+            // var totalCount = await _context.Companiezz.CountAsync();
+            var totalCount = await query.CountAsync(); // applies search
+
 
             return new ListCompaniesWithCursorResponse
             {
