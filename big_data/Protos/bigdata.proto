@@ -110,11 +110,13 @@ message ListCompaniesWithCursorRequest {
   optional int32 pageSize = 1;
   optional string cursor = 2; 
   optional string search = 3;
+  optional string sortBy = 4;
+  optional string sortDirection = 5;
 }
 
 message ListCompaniesWithCursorResponse {
   repeated Company companies = 1;
-  string nextCursor = 2;
+  optional string nextCursor = 2;  // checks if not set in gRPC client, returns null - means last page.
   int32 totalCount = 3;
 }
 

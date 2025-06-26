@@ -34,10 +34,12 @@ namespace GatewayRoot.Controllers
         public async Task<ActionResult<CompaniesResponseCursor>> GetWithCursor(
             [FromQuery] int? pageSize,
             [FromQuery] string? cursor = null,
-            [FromQuery] string? search = null
+            [FromQuery] string? search = null,
+            [FromQuery] string? sortBy = null,
+            [FromQuery] string? sortDirection = null
             )
         {
-            var response = await _bigDataClient.ListCompaniesWithCursorAsync(pageSize, cursor, search);
+            var response = await _bigDataClient.ListCompaniesWithCursorAsync(pageSize, cursor, search, sortBy, sortDirection);
             return Ok(response);
         }
 

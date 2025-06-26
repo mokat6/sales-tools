@@ -80,21 +80,33 @@ namespace big_data.Services
         public override async Task<ListCompaniesWithCursorResponse> ListCompaniesWithCursor(ListCompaniesWithCursorRequest request, ServerCallContext context)
         {
             int pageSize = request.HasPageSize ? request.PageSize : 10;
-            string search = request.Search;
+            string search = request.Search.Trim();
+
+            string sortBy = string.IsNullOrEmpty(request.SortBy) ? "CompanyName" : request.SortBy;
+            string sortDirection = request.SortDirection?.ToLower() == "desc" ? "desc" : "asc";
+            bool isDescending = sortDirection == "desc";
 
             string? cursor = request.Cursor;
-            string? nameCursor = null;
-            long? idCursor = null;
 
-            // Decode cursor if provided
+            // EF query
+            var query = _context.Companiezz.AsQueryable();
+
+            // Global filter apply
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(c =>
+                            c.CompanyName != null && c.CompanyName.Contains(search));
+            }
+
+
+            // Cursor decode  
+            CursorDto? cursorObj = null;
             if (!string.IsNullOrEmpty(cursor))
             {
                 try
                 {
                     var decoded = Base64UrlEncoder.Decode(cursor);
-                    var cursorObj = JsonSerializer.Deserialize<CursorDto>(decoded);
-                    nameCursor = cursorObj?.Name;
-                    idCursor = cursorObj?.Id;
+                    cursorObj = JsonSerializer.Deserialize<CursorDto>(decoded);
                 }
                 catch (Exception ex)
                 {
@@ -102,27 +114,43 @@ namespace big_data.Services
                 }
             }
 
-            // EF query
-            var query = _context.Companiezz.AsQueryable();
-
-            if (!string.IsNullOrEmpty(search))
+            // Cursor apply
+            if (cursorObj != null)
             {
-                query = query.Where(c =>
-                            c.CompanyName != null && c.CompanyName.Contains(search));
+                if (sortBy == "CompanyName" && cursorObj.Name is not null)
+                {
+                    query = isDescending
+                    // c.CompanyName > nameCursor  (c# doesn't allow comparing strings with `>`)
+                    ? query.Where(c => string.Compare(c.CompanyName, cursorObj.Name) < 0 || (c.CompanyName == cursorObj.Name && c.Id < cursorObj.Id))
+                    : query.Where(c => string.Compare(c.CompanyName, cursorObj.Name) > 0 || (c.CompanyName == cursorObj.Name && c.Id > cursorObj.Id));
+                }
+
+                else if (sortBy == "Id")
+                {
+                    query = isDescending
+                    ? query.Where(c => c.Id < cursorObj.Id)
+                    : query.Where(c => c.Id > cursorObj.Id);
+                }
             }
 
-            if (!string.IsNullOrEmpty(nameCursor) && idCursor.HasValue)
+            //  Apply ORDER BY on the query chain (matches cursor)
+
+
+            if (sortBy == "CompanyName")
             {
-                query = query.Where(c =>
-                    string.Compare(c.CompanyName, nameCursor) > 0 ||   // c.CompanyName > nameCursor  (c# doesn't allow comparing strings with `>`)
-                    (c.CompanyName == nameCursor && c.Id > idCursor.Value));
+                query = isDescending
+                ? query.OrderByDescending(c => c.CompanyName).ThenByDescending(c => c.Id)
+                : query.OrderBy(c => c.CompanyName).ThenBy(c => c.Id);
+            }
+            else if (sortBy == "Id")
+            {
+                query = isDescending
+                ? query.OrderByDescending(c => c.Id)
+                : query.OrderBy(c => c.Id);
             }
 
-            var companies = await query
-                .OrderBy(c => c.CompanyName)
-                .ThenBy(c => c.Id)
-                .Take(pageSize)
-                .ToListAsync();
+            // Finish the query chain
+            var companies = await query.Take(pageSize).ToListAsync();
 
 
             // Build next cursor if there’s a next page
@@ -130,27 +158,30 @@ namespace big_data.Services
             if (companies.Count == pageSize)
             {
                 var last = companies[^1];
-                var cursorObj = new CursorDto
+                var newCursor = new CursorDto
                 {
                     Name = last.CompanyName,
                     Id = last.Id
                 };
-                var rawCursor = JsonSerializer.Serialize(cursorObj);
+                var rawCursor = JsonSerializer.Serialize(newCursor);
                 nextCursor = Base64UrlEncoder.Encode(rawCursor);
 
             }
-
+            Console.Write("NEXT CURSOR IS: _____");
+            Console.WriteLine(nextCursor);
             // TODO: cache totalCount, expensive operation
             // var totalCount = await _context.Companiezz.CountAsync();
             var totalCount = await query.CountAsync(); // applies search
 
-
-            return new ListCompaniesWithCursorResponse
+            var res = new ListCompaniesWithCursorResponse
             {
                 Companies = { companies.Select(CompanyMapper.EntityToGrpc) },
-                NextCursor = nextCursor ?? "",
                 TotalCount = totalCount
             };
+            if (nextCursor != null) res.NextCursor = nextCursor;
+
+            return res;
+
         }
 
 
