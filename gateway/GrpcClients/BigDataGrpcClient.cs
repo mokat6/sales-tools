@@ -93,8 +93,9 @@ namespace gatewayRoot.Services
             var dto = new CompanyDto();
             patchDoc.ApplyTo(dto);
             Console.WriteLine("GGG before creating company object");
+            Console.Write("the dto  >>> "); Console.WriteLine(JsonConvert.SerializeObject(dto));
             var company = CompanyMapper.PatchDtoToGrpc(id, dto);
-
+            Console.Write("After patch applied: "); Console.WriteLine(company);
             Console.WriteLine("PATH DOC HERE!");
             Console.WriteLine(JsonConvert.SerializeObject(patchDoc.Operations, Formatting.Indented));
 

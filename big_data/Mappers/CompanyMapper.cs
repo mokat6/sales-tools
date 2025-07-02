@@ -22,7 +22,17 @@ namespace big_data.Mappers
             if (entity.CategoryGoogle != null) protoCompany.CategoryGoogle = entity.CategoryGoogle;
             if (entity.RatedCount != null) protoCompany.RatedCount = entity.RatedCount;
             if (entity.GoogleMapsUrl != null) protoCompany.GoogleMapsUrl = entity.GoogleMapsUrl;
-            if (entity.Classification.HasValue) protoCompany.Classification = (ProtoApi.CompClassification)entity.Classification.Value;
+            if (entity.Classification.HasValue)
+            {
+                var flags = entity.Classification.Value;
+
+                protoCompany.Classification.AddRange(
+                    System.Enum.GetValues<Modelz.CompClassification>()
+                        .Where(flag => flag != Modelz.CompClassification.Unspecified && flags.HasFlag(flag))
+                        .Select(flag => (ProtoApi.CompClassification)flag)
+                );
+            }
+            // if (entity.Classification.HasValue) protoCompany.Classification = (ProtoApi.CompClassification)entity.Classification.Value;
 
             if (entity.BigFishScore.HasValue) protoCompany.BigFishScore = entity.BigFishScore.Value;
             if (entity.RatingGoogle.HasValue) protoCompany.RatingGoogle = (double)entity.RatingGoogle.Value;
@@ -45,7 +55,17 @@ namespace big_data.Mappers
             if (protoCompany.HasRatedCount) entity.RatedCount = protoCompany.RatedCount;
             if (protoCompany.HasGoogleMapsUrl) entity.GoogleMapsUrl = protoCompany.GoogleMapsUrl;
             if (protoCompany.HasBigFishScore) entity.BigFishScore = protoCompany.BigFishScore;
-            entity.Classification = (Modelz.CompClassification)protoCompany.Classification; // don't use null. just use 0 unspecified for "nothing / not set"
+            if (protoCompany.Classification.Count > 0)
+            {
+                entity.Classification = protoCompany.Classification
+                    .Select(c => (Modelz.CompClassification)c)
+                    .Aggregate(Modelz.CompClassification.Unspecified, (acc, val) => acc | val);
+            }
+            else
+            {
+                entity.Classification = Modelz.CompClassification.Unspecified;
+            }
+            // entity.Classification = (Modelz.CompClassification)protoCompany.Classification; // don't use null. just use 0 unspecified for "nothing / not set"
 
             return entity;
 
@@ -90,7 +110,8 @@ namespace big_data.Mappers
                         entity.BigFishScore = grpcCompany.HasBigFishScore ? grpcCompany.BigFishScore : null;
                         break;
                     case "classification":
-                        entity.Classification = (Modelz.CompClassification)(int)grpcCompany.Classification;
+                        entity.Classification = grpcCompany.Classification
+                            .Aggregate(Modelz.CompClassification.Unspecified, (acc, next) => acc | (Modelz.CompClassification)(int)next);
                         break;
                     default:
                         throw new RpcException(new Status(StatusCode.InvalidArgument, $"Unknown update mask path: {path}"));

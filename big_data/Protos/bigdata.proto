@@ -44,7 +44,7 @@ message AddCompanyRequest {
  optional string rated_count = 9;
  optional string google_maps_url = 10;
  optional int32 big_fish_score = 11;
- optional CompClassification Classification = 12; 
+ repeated CompClassification Classification = 12; 
 }
 
 // -- UPDATE -- 
@@ -135,7 +135,7 @@ message Company {
   optional string rated_count = 9;
   optional string google_maps_url = 10;
   optional int32 big_fish_score = 11;
-  optional CompClassification Classification = 12; // enum. good fit for me, trash, retailer ...
+  repeated  CompClassification Classification = 12; // repeated already optional. Optional when empty array
 }
 
 // --- Request & Response for GetCompanyContacts ---
@@ -178,9 +178,9 @@ enum ContactType {
 enum CompClassification {
   COMP_CLASSIFICATION_UNSPECIFIED = 0;
   GOOD_MATCH = 1;
-  FUCK_YOU = 2;
-  ECOMMERCE = 3;
-  GIMME_SOME_LOVE = 4;
+  MAYBE = 2;
+  ECOMMERCE = 4;
+  GIMME_SOME_LOVE = 8;
 }
 
 message AddContactRequest {

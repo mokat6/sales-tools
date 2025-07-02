@@ -21,14 +21,6 @@ namespace big_data.Models
 
     }
 
-    // better to give int values explicitly
-    public enum CompClassification
-    {
-        Unspecified = 0,
-        GoodMatch = 1,
-        FuckYou = 2,
-        Ecommerce = 3,
-        LowChance = 4
-    }
+
 }
 
