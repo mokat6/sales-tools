@@ -9,18 +9,20 @@ namespace big_data.Mappers
     static class ContactMapper
     {
 
-        public static Modelz.Contact GrpcToEntity(ProtoApi.AddContactRequest c)
+        public static Modelz.Contact GrpcToEntity(ProtoApi.AddContactRequest grpc)
         {
-            return new Modelz.Contact()
+            Modelz.Contact entity = new()
             {
-                CompanyId = c.CompanyId,
-                Value = c.Value,
-                Type = (Modelz.ContactType)(int)c.Type,
-                ContactedFromEmail = c.ContactedFromEmail,
-                Checked = c.Checked,
-                Date = c.Date?.ToDateTime()
-
+                Value = grpc.Value,
             };
+            entity.CompanyId = grpc.CompanyId;
+            entity.Type = (Modelz.ContactType)grpc.Type;
+
+            if (grpc.HasContactedFromEmail) entity.ContactedFromEmail = grpc.ContactedFromEmail;
+            if (grpc.HasChecked) entity.Checked = grpc.Checked;
+            if (grpc.Date != null) entity.Date = grpc.Date.ToDateTime();
+
+            return entity;
         }
 
 
@@ -30,17 +32,18 @@ namespace big_data.Mappers
 
             grpc.Id = entity.Id;
             grpc.CompanyId = entity.CompanyId;
-            if (entity.Value != null) grpc.Value = entity.Value;
+            grpc.Value = entity.Value;
             grpc.Type = (ProtoApi.ContactType)entity.Type;
 
-            if (entity.IsOnWhatsapp != null) grpc.IsOnWhatsapp = entity.IsOnWhatsapp;
+            if (entity.IsOnWhatsapp != null) grpc.IsOnWhatsapp = entity.IsOnWhatsapp.Value;
             if (entity.ContactedFromEmail != null) grpc.ContactedFromEmail = entity.ContactedFromEmail;
-            if (entity.Checked != null) grpc.Checked = entity.Checked;
+            if (entity.Checked != null) grpc.Checked = entity.Checked.Value;
             if (entity.Date.HasValue) grpc.Date = Timestamp.FromDateTime(entity.Date.Value.ToUniversalTime());
 
             return grpc;
         }
 
+        // TODO: check the put Update Contact, will need FIXING
         public static void PutUpdateContact(ProtoApi.UpdateContactRequest request, Modelz.Contact entity)
         {
             entity.CompanyId = request.CompanyId;

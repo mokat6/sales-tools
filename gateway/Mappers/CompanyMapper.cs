@@ -9,22 +9,21 @@ static class CompanyMapper
 {
     public static CompanyDto ToDto(ProtoApi.Company grpc)
     {
-        return new CompanyDto
-        {
-            Id = grpc.Id,
-            CompanyName = grpc.CompanyName,
-            Country = grpc.Country,
-            City = grpc.City,
-            FullAddress = grpc.FullAddress,
-            Website = grpc.Website,
-            CategoryGoogle = grpc.CategoryGoogle,
-            RatingGoogle = grpc.HasRatingGoogle ? grpc.RatingGoogle : null,
-            RatedCount = grpc.RatedCount,
-            GoogleMapsUrl = grpc.GoogleMapsUrl,
-            BigFishScore = grpc.HasBigFishScore ? grpc.BigFishScore : null,
-            Classification = grpc.Classification.Where(c => c != ProtoApi.CompClassification.Unspecified)
-            .Select(c => (CompClassificationDto)c).ToList()
-        };
+        CompanyDto dto = new() { Id = grpc.Id };
+        if (grpc.HasCompanyName) dto.CompanyName = grpc.CompanyName;
+        if (grpc.HasCountry) dto.Country = grpc.Country;
+        if (grpc.HasCity) dto.City = grpc.City;
+        if (grpc.HasFullAddress) dto.FullAddress = grpc.FullAddress;
+        if (grpc.HasWebsite) dto.Website = grpc.Website;
+        if (grpc.HasCategoryGoogle) dto.CategoryGoogle = grpc.CategoryGoogle;
+        if (grpc.HasRatingGoogle) dto.RatingGoogle = grpc.RatingGoogle;
+        if (grpc.HasRatedCount) dto.RatedCount = grpc.RatedCount;
+        if (grpc.HasGoogleMapsUrl) dto.GoogleMapsUrl = grpc.GoogleMapsUrl;
+        if (grpc.HasBigFishScore) dto.BigFishScore = grpc.BigFishScore;
+        dto.Classification = grpc.Classification.Where(c => c != ProtoApi.CompClassification.Unspecified)
+            .Select(c => (CompClassificationDto)c).ToList();
+
+        return dto;
     }
 
     public static ProtoApi.Company PatchDtoToGrpc(long id, CompanyDto dto)

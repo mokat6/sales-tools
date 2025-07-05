@@ -6,20 +6,23 @@ namespace gatewayRoot.Mappers;
 
 static class ContactMapper
 {
-    public static ContactDto GrpcToDto(ProtoApi.Contact c)
+    public static ContactDto GrpcToDto(ProtoApi.Contact grpc)
     {
-        return new ContactDto
+        ContactDto dto = new()
         {
-            Id = c.Id,
-            CompanyId = c.CompanyId,
-            Value = c.Value,
-            Type = c.Type,
-            IsOnWhatsapp = c.IsOnWhatsapp,
-            ContactedFromEmail = c.ContactedFromEmail,
-            Checked = c.Checked,
-            Date = c.Date?.ToDateTime(),
-
+            Id = grpc.Id,
+            Value = grpc.Value
         };
+        dto.Id = grpc.Id;
+        dto.CompanyId = grpc.CompanyId;
+        dto.Type = (ContactTypeDto)grpc.Type;
+
+        if (grpc.HasChecked) dto.Checked = grpc.Checked;
+        if (grpc.HasContactedFromEmail) dto.ContactedFromEmail = grpc.ContactedFromEmail;
+        if (grpc.HasIsOnWhatsapp) dto.IsOnWhatsapp = grpc.IsOnWhatsapp;
+        if (grpc.Date != null) dto.Date = grpc.Date.ToDateTime();
+
+        return dto;
     }
 
 }

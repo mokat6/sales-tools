@@ -1,3 +1,5 @@
+https://protobuf.dev/programming-guides/proto3/
+
 # Scalar Types (primitives)
 
 Include all numbers, string, bool, enum, ... everything other than `message (object)`
@@ -32,3 +34,14 @@ must have `unspecified = 0` and it is the default value, like "" for strings, fa
 
 Both `0 unspecified` and `null` in DB would mean the same thing.
 My idea. Do not use null in DB. just use 0 for "nothing". Maybe even non null column in DB.
+
+# date / time
+
+Google-wrapper that is still relevant in proto V3. There's no alternative, no native date/time type. Only this one from Google.
+google.protobuf.Timestamp date = 6;
+
+no "optional" because it's a Google wrapper type. It can be null. so if (grpc.date != null)
+
+# Field mask for PATCH
+
+google.protobuf.FieldMask
