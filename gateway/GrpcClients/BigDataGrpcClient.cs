@@ -18,9 +18,9 @@ namespace gatewayRoot.Services
 {
     public class BigDataGrpcClient
     {
-        private readonly ProtoApi.BigDataSuckers.BigDataSuckersClient _client;
+        private readonly ProtoApi.BigDataProtoService.BigDataProtoServiceClient _client;
 
-        public BigDataGrpcClient(ProtoApi.BigDataSuckers.BigDataSuckersClient client)
+        public BigDataGrpcClient(ProtoApi.BigDataProtoService.BigDataProtoServiceClient client)
         {
             _client = client;
         }

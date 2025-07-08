@@ -18,7 +18,7 @@ namespace big_data.Services
 
 
 
-    public class BigDataService : ProtoApi.BigDataSuckers.BigDataSuckersBase
+    public class BigDataService : ProtoApi.BigDataProtoService.BigDataProtoServiceBase
     {
         private readonly BigDataContext _context;
         private readonly ILogger<BigDataService> _logger;

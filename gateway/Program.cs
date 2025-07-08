@@ -43,7 +43,7 @@ builder.Services.AddOpenApi();
 
 
 //----------------
-builder.Services.AddGrpcClient<ProtoApi.BigDataSuckers.BigDataSuckersClient>(o =>
+builder.Services.AddGrpcClient<ProtoApi.BigDataProtoService.BigDataProtoServiceClient>(o =>
 {
     o.Address = new Uri("https://localhost:7115"); // Or wherever your gRPC service is
 });

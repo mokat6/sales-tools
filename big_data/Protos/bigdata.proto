@@ -9,7 +9,7 @@ option csharp_namespace = "big_data.Proto";
 package bigdata;
 
 
-service BigDataSuckers {
+service BigDataProtoService {
   rpc ListCompanies (ListCompaniesRequest) returns (ListCompaniesResponse);
   rpc ListCompaniesByOffset (ListCompaniesByOffsetRequest) returns (ListCompaniesByOffsetResponse);
   rpc ListCompaniesWithCursor (ListCompaniesWithCursorRequest) returns (ListCompaniesWithCursorResponse);
