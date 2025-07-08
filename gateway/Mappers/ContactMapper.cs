@@ -25,4 +25,14 @@ static class ContactMapper
         return dto;
     }
 
+    public static ProtoApi.AddContactRequest createRequestDtoToGrpc(CreateContactDto dto)
+    {
+        ProtoApi.AddContactRequest grpc = new();
+        grpc.CompanyId = dto.CompanyId;
+        if (dto.Value != null) grpc.Value = dto.Value;
+        grpc.Type = (ProtoApi.ContactType)dto.Type;
+
+        return grpc;
+    }
+
 }

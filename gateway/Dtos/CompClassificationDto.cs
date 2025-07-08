@@ -9,7 +9,7 @@ namespace gatewayRoot.Dtos
         GoodMatch = 1 << 0, // 1
 
         [Display(Name = "Maybe")]
-        Maybe = 1 << 1,     // 2 (was previously "FuckYou", now renamed)
+        Maybe = 1 << 1,     // 2 
 
         [Display(Name = "Ecommerce")]
         Ecommerce = 1 << 2, // 4

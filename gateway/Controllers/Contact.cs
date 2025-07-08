@@ -21,6 +21,17 @@ namespace GatewayRoot.Controllers
             return await _bigDataClient.GetCompanyContactsAsync(compId);
         }
 
+        // TODO: check this out
+        //  [HttpPost("contactsLOL")]  // sets the route, adds to base, can I have both?
+
+        [HttpPost(Name = "CreateCompanyContact")]
+        public async Task<ActionResult<ContactDto>> Post([FromBody] CreateContactDto dto)
+        {
+            var response = await _bigDataClient.CreateContact(dto);
+
+            return Ok(response);
+        }
+
 
 
     }

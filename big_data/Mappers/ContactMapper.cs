@@ -9,7 +9,7 @@ namespace big_data.Mappers
     static class ContactMapper
     {
 
-        public static Modelz.Contact GrpcToEntity(ProtoApi.AddContactRequest grpc)
+        public static Modelz.Contact AddContactGrpcToEntity(ProtoApi.AddContactRequest grpc)
         {
             Modelz.Contact entity = new()
             {
@@ -18,9 +18,7 @@ namespace big_data.Mappers
             entity.CompanyId = grpc.CompanyId;
             entity.Type = (Modelz.ContactType)grpc.Type;
 
-            if (grpc.HasContactedFromEmail) entity.ContactedFromEmail = grpc.ContactedFromEmail;
-            if (grpc.HasChecked) entity.Checked = grpc.Checked;
-            if (grpc.Date != null) entity.Date = grpc.Date.ToDateTime();
+
 
             return entity;
         }

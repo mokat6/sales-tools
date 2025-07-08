@@ -144,6 +144,15 @@ namespace gatewayRoot.Services
                 return null; // company not found - return null. it should be like that! REST API has if (null) return 404
             }
         }
+
+        public async Task<ContactDto> CreateContact(CreateContactDto dto)
+        {
+            ProtoApi.AddContactRequest request = ContactMapper.createRequestDtoToGrpc(dto);
+
+            var response = await _client.AddContactAsync(request);
+
+            return Mappers.ContactMapper.GrpcToDto(response);
+        }
     }
 
 

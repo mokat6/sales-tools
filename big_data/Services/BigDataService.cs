@@ -249,7 +249,7 @@ namespace big_data.Services
 
         public override async Task<ProtoApi.Contact> AddContact(ProtoApi.AddContactRequest request, ServerCallContext context)
         {
-            var entity = ContactMapper.GrpcToEntity(request);
+            var entity = ContactMapper.AddContactGrpcToEntity(request);
             await _context.ContactsLOL.AddAsync(entity);
             await _context.SaveChangesAsync();
 

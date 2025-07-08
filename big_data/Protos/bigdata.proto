@@ -185,9 +185,9 @@ enum CompClassification {
 message AddContactRequest {
   int64 company_id = 1;
   string value = 2;
-  ContactType type = 3;
-  optional bool is_on_whatsapp = 4;
-  optional string contacted_from_email = 5;
-  optional bool checked = 6;
-  google.protobuf.Timestamp date = 7;
+  ContactType type = 3; // enum
+  // optional bool is_on_whatsapp = 4;
+  // optional string contacted_from_email = 5;
+  // optional bool checked = 6;
+  // google.protobuf.Timestamp date = 7;
 }

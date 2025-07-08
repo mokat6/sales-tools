@@ -1,4 +1,3 @@
-using ProtoApi = big_data.Proto;
 
 namespace gatewayRoot.Dtos
 {
