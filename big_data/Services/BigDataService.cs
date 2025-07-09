@@ -259,7 +259,7 @@ namespace big_data.Services
         public override async Task<Empty> DeleteContact(ProtoApi.DeleteContactRequest request, ServerCallContext context)
         {
             var contact = await _context.ContactsLOL.FindAsync(request.ContactId);
-            if (contact == null) throw new RpcException(new Status(StatusCode.NotFound, "Contact not found"));
+            if (contact == null) throw new RpcException(new Status(StatusCode.NotFound, "Contact not found XXX"));
 
             _context.ContactsLOL.Remove(contact);
             await _context.SaveChangesAsync();

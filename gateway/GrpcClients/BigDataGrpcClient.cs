@@ -145,13 +145,24 @@ namespace gatewayRoot.Services
             }
         }
 
-        public async Task<ContactDto> CreateContact(CreateContactDto dto)
+        public async Task<ContactDto> CreateContactAsync(CreateContactDto dto)
         {
             ProtoApi.AddContactRequest request = ContactMapper.createRequestDtoToGrpc(dto);
 
             var response = await _client.AddContactAsync(request);
 
             return Mappers.ContactMapper.GrpcToDto(response);
+        }
+
+        public async Task<Empty> DeleteContactAsync(long contactId)
+        {
+            ProtoApi.DeleteContactRequest request = new()
+            {
+                ContactId = contactId
+            };
+
+            var response = await _client.DeleteContactAsync(request);
+            return response;
         }
     }
 

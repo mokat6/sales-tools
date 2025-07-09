@@ -1,6 +1,8 @@
 using gatewayRoot.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using gatewayRoot.Services;
+using Grpc.Core;
+using System.Diagnostics;
 
 namespace GatewayRoot.Controllers
 {
@@ -27,12 +29,31 @@ namespace GatewayRoot.Controllers
         [HttpPost(Name = "CreateCompanyContact")]
         public async Task<ActionResult<ContactDto>> Post([FromBody] CreateContactDto dto)
         {
-            var response = await _bigDataClient.CreateContact(dto);
+            var response = await _bigDataClient.CreateContactAsync(dto);
 
             return Ok(response);
         }
 
+        [HttpDelete(Name = "DeleteContact")]
+        public async Task<IActionResult> Delete([FromQuery] long contactId)
+        {
+            try
+            {
+                Console.WriteLine("try block");
+                await _bigDataClient.DeleteContactAsync(contactId);
+                return NoContent(); // 204
+            }
+            catch (RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
+            {
 
+                return NotFound(); // 404
+            }
+            catch (RpcException ex)
+            {
+                // Other gRPC errors (optional)
+                return StatusCode(500, $"gRPC error: {ex.Status.Detail}");
+            }
+        }
 
     }
 
