@@ -36,10 +36,11 @@ namespace GatewayRoot.Controllers
             [FromQuery] string? cursor = null,
             [FromQuery] string? search = null,
             [FromQuery] string? sortBy = null,
-            [FromQuery] string? sortDirection = null
+            [FromQuery] string? sortDirection = null,
+            [FromQuery] bool isDownloadAll = false
             )
         {
-            var response = await _bigDataClient.ListCompaniesWithCursorAsync(pageSize, cursor, search, sortBy, sortDirection);
+            var response = await _bigDataClient.ListCompaniesWithCursorAsync(pageSize, cursor, search, sortBy, sortDirection, isDownloadAll);
             return Ok(response);
         }
 

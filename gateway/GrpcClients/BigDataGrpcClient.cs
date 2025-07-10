@@ -50,7 +50,7 @@ namespace gatewayRoot.Services
             return restResponse;
         }
 
-        public async Task<CompaniesResponseCursor> ListCompaniesWithCursorAsync(int? pageSize, string? cursor, string? search, string? sortBy, string? sortDirection)
+        public async Task<CompaniesResponseCursor> ListCompaniesWithCursorAsync(int? pageSize, string? cursor, string? search, string? sortBy, string? sortDirection, bool isDownloadAll)
         {
             var rpcRequest = new ListCompaniesWithCursorRequest();
 
@@ -59,6 +59,7 @@ namespace gatewayRoot.Services
             if (search != null) rpcRequest.Search = search;
             if (sortBy != null) rpcRequest.SortBy = sortBy;
             if (sortDirection != null) rpcRequest.SortDirection = sortDirection;
+            rpcRequest.IsDownloadAll = isDownloadAll;
 
             var protoResponse = await _client.ListCompaniesWithCursorAsync(rpcRequest);
             var pagination = new PaginationCursorDto(protoResponse.TotalCount,

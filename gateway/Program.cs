@@ -46,7 +46,13 @@ builder.Services.AddOpenApi();
 builder.Services.AddGrpcClient<ProtoApi.BigDataProtoService.BigDataProtoServiceClient>(o =>
 {
     o.Address = new Uri("https://localhost:7115"); // Or wherever your gRPC service is
-});
+})
+// added this to support Download All rows in one go;
+.ConfigureChannel(options =>
+{
+    options.MaxReceiveMessageSize = 20 * 1024 * 1024;
+    options.MaxSendMessageSize = 20 * 1024 * 1024;
+}); ;
 
 builder.Services.AddScoped<gatewayRoot.Services.BigDataGrpcClient>();
 //--------------------

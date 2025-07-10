@@ -81,6 +81,7 @@ namespace big_data.Services
         {
             int pageSize = request.HasPageSize ? request.PageSize : 10;
             string search = request.Search.Trim();
+            var isDownloadAll = request.IsDownloadAll;
 
             string sortBy = string.IsNullOrEmpty(request.SortBy) ? "CompanyName" : request.SortBy;
             string sortDirection = request.SortDirection?.ToLower() == "desc" ? "desc" : "asc";
@@ -150,12 +151,14 @@ namespace big_data.Services
             }
 
             // Finish the query chain
-            var companies = await query.Take(pageSize).ToListAsync();
+            var companies = isDownloadAll
+            ? await query.ToListAsync()
+            : await query.Take(pageSize).ToListAsync();
 
 
             // Build next cursor if there’s a next page
             string? nextCursor = null;
-            if (companies.Count == pageSize)
+            if (companies.Count == pageSize && !isDownloadAll)
             {
                 var last = companies[^1];
                 var newCursor = new CursorDto
@@ -259,7 +262,7 @@ namespace big_data.Services
         public override async Task<Empty> DeleteContact(ProtoApi.DeleteContactRequest request, ServerCallContext context)
         {
             var contact = await _context.ContactsLOL.FindAsync(request.ContactId);
-            if (contact == null) throw new RpcException(new Status(StatusCode.NotFound, "Contact not found XXX"));
+            if (contact == null) throw new RpcException(new Status(StatusCode.NotFound, "Contact not found"));
 
             _context.ContactsLOL.Remove(contact);
             await _context.SaveChangesAsync();

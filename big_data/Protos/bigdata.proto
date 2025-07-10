@@ -111,6 +111,7 @@ message ListCompaniesWithCursorRequest {
   optional string search = 3;
   optional string sortBy = 4;
   optional string sortDirection = 5;
+  optional bool isDownloadAll = 6;
 }
 
 message ListCompaniesWithCursorResponse {

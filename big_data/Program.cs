@@ -4,7 +4,12 @@ using big_data.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddGrpc();
+builder.Services.AddGrpc(options =>
+{
+    // download all table rows 9k rows. Without it, errors out message too large
+    options.MaxReceiveMessageSize = 20 * 1024 * 1024; // 20 MB
+    options.MaxSendMessageSize = 20 * 1024 * 1024;    // optional, if server sends large responses
+});
 
 
 builder.Services.AddDbContext<BigDataContext>(options =>
