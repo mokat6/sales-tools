@@ -14,6 +14,7 @@ namespace big_data.Models
         public string? GoogleMapsUrl { get; set; }
         public int? BigFishScore { get; set; }
         public CompClassification? Classification { get; set; }
+        public string? MarkdownNote { get; set; }
 
         // Navigation properties for related contact details
         public ICollection<Contact> Contacts { get; set; } = [];
