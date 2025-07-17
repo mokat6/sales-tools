@@ -20,6 +20,8 @@ static class CompanyMapper
         if (grpc.HasRatedCount) dto.RatedCount = grpc.RatedCount;
         if (grpc.HasGoogleMapsUrl) dto.GoogleMapsUrl = grpc.GoogleMapsUrl;
         if (grpc.HasBigFishScore) dto.BigFishScore = grpc.BigFishScore;
+        if (grpc.HasMarkdownNote) dto.MarkdownNote = grpc.MarkdownNote;
+
         dto.Classification = grpc.Classification.Where(c => c != ProtoApi.CompClassification.Unspecified)
             .Select(c => (CompClassificationDto)c).ToList();
 
@@ -50,9 +52,11 @@ static class CompanyMapper
         if (dto.RatedCount != null) grpcCompany.RatedCount = dto.RatedCount;
         if (dto.GoogleMapsUrl != null) grpcCompany.GoogleMapsUrl = dto.GoogleMapsUrl;
         if (dto.BigFishScore.HasValue) grpcCompany.BigFishScore = dto.BigFishScore.Value;
+        if (dto.MarkdownNote != null) grpcCompany.MarkdownNote = dto.MarkdownNote;
+
         if (dto.Classification.Count > 0) grpcCompany.Classification.AddRange(
-            dto.Classification.Select(c => (ProtoApi.CompClassification)c).ToList()
-            );
+                dto.Classification.Select(c => (ProtoApi.CompClassification)c).ToList()
+                );
 
         return grpcCompany;
 

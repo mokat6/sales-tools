@@ -22,6 +22,7 @@ namespace big_data.Mappers
             if (entity.CategoryGoogle != null) protoCompany.CategoryGoogle = entity.CategoryGoogle;
             if (entity.RatedCount != null) protoCompany.RatedCount = entity.RatedCount;
             if (entity.GoogleMapsUrl != null) protoCompany.GoogleMapsUrl = entity.GoogleMapsUrl;
+            if (entity.MarkdownNote != null) protoCompany.MarkdownNote = entity.MarkdownNote;
             if (entity.Classification.HasValue)
             {
                 var flags = entity.Classification.Value;
@@ -36,6 +37,7 @@ namespace big_data.Mappers
 
             if (entity.BigFishScore.HasValue) protoCompany.BigFishScore = entity.BigFishScore.Value;
             if (entity.RatingGoogle.HasValue) protoCompany.RatingGoogle = (double)entity.RatingGoogle.Value;
+
 
             return protoCompany;
         }
@@ -55,6 +57,8 @@ namespace big_data.Mappers
             if (protoCompany.HasRatedCount) entity.RatedCount = protoCompany.RatedCount;
             if (protoCompany.HasGoogleMapsUrl) entity.GoogleMapsUrl = protoCompany.GoogleMapsUrl;
             if (protoCompany.HasBigFishScore) entity.BigFishScore = protoCompany.BigFishScore;
+            if (protoCompany.HasMarkdownNote) entity.MarkdownNote = protoCompany.MarkdownNote;
+
             if (protoCompany.Classification.Count > 0)
             {
                 entity.Classification = protoCompany.Classification
@@ -108,6 +112,9 @@ namespace big_data.Mappers
                         break;
                     case "big_fish_score":
                         entity.BigFishScore = grpcCompany.HasBigFishScore ? grpcCompany.BigFishScore : null;
+                        break;
+                    case "markdown_note":
+                        entity.MarkdownNote = grpcCompany.HasMarkdownNote ? grpcCompany.MarkdownNote : null;
                         break;
                     case "classification":
                         entity.Classification = grpcCompany.Classification

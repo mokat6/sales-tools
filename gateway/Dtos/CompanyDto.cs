@@ -19,5 +19,7 @@ namespace gatewayRoot.Dtos
         // why? decouple. PatchCompanyDto is part of your application logic or API layer — it shouldn’t directly depend on the gRPC-generated code
         // lets me change value names, add attributes, ...
         public List<CompClassificationDto> Classification { get; set; } = new();
+
+        public string? MarkdownNote { get; set; }
     }
 }
