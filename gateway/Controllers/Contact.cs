@@ -55,6 +55,30 @@ namespace GatewayRoot.Controllers
             }
         }
 
+        [HttpPut(Name = "UpdateContact")]
+        public async Task<IActionResult> Put([FromBody] ContactDto contactDto)
+        {
+            try
+            {
+                var response = await _bigDataClient.UpdateContactAsync(contactDto);
+                return Ok(response);
+            }
+            catch (RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
+            {
+                return NotFound("Contact wsa not found haha");
+            }
+            catch (RpcException ex)
+            {
+                return StatusCode(500, $"gRPC LOL error: {ex.Status.Detail}");
+            }
+            catch (Exception ex)
+            {
+                // Catch-all for unexpected issues
+                return StatusCode(500, $"Error in REST API microservice / grpc client: {ex.Message}");
+            }
+
+        }
+
     }
 
 }

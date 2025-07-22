@@ -1,5 +1,6 @@
 
 using gatewayRoot.Dtos;
+using Google.Protobuf.WellKnownTypes;
 using ProtoApi = big_data.Proto;
 
 namespace gatewayRoot.Mappers;
@@ -35,4 +36,22 @@ static class ContactMapper
         return grpc;
     }
 
+    // PUT - so replace whole object, gRPC can't have nulls. so just not set. On gRPC server, if not set then map to null
+    public static ProtoApi.UpdateContactRequest updateRequestDtoToGrpc(ContactDto dto)
+    {
+        ProtoApi.UpdateContactRequest grpc = new();
+        grpc.Id = dto.Id;
+        grpc.CompanyId = dto.CompanyId;
+        grpc.Type = (ProtoApi.ContactType)dto.Type;
+        if (dto.Value != null) grpc.Value = dto.Value;
+        if (dto.Checked.HasValue) grpc.Checked = dto.Checked.Value;
+        if (dto.ContactedFromEmail != null) grpc.ContactedFromEmail = dto.ContactedFromEmail;
+        if (dto.Date.HasValue)
+        {
+            grpc.Date = Timestamp.FromDateTime(dto.Date.Value.ToUniversalTime());
+        }
+        if (dto.IsOnWhatsapp.HasValue) grpc.IsOnWhatsapp = dto.IsOnWhatsapp.Value;
+
+        return grpc;
+    }
 }

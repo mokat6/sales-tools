@@ -165,6 +165,14 @@ namespace gatewayRoot.Services
             var response = await _client.DeleteContactAsync(request);
             return response;
         }
+
+        public async Task<ContactDto> UpdateContactAsync(ContactDto dto)
+        {
+            var request = ContactMapper.updateRequestDtoToGrpc(dto);
+            var response = await _client.UpdateContactAsync(request);
+
+            return ContactMapper.GrpcToDto(response);
+        }
     }
 
 

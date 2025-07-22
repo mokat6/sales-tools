@@ -273,7 +273,7 @@ namespace big_data.Services
         public override async Task<ProtoApi.Contact> UpdateContact(ProtoApi.UpdateContactRequest request, ServerCallContext context)
         {
             var entity = await _context.ContactsLOL.SingleOrDefaultAsync(contact => contact.Id == request.Id);
-
+            
             if (entity == null) throw new RpcException(new Status(StatusCode.NotFound, "Contact not found"));
 
             ContactMapper.PutUpdateContact(request, entity);

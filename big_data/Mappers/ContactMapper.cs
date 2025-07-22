@@ -41,16 +41,17 @@ namespace big_data.Mappers
             return grpc;
         }
 
-        // TODO: check the put Update Contact, will need FIXING
-        public static void PutUpdateContact(ProtoApi.UpdateContactRequest request, Modelz.Contact entity)
+        // PUT - if a field is not set, it will be nulled out
+        public static void PutUpdateContact(ProtoApi.UpdateContactRequest grpc, Modelz.Contact entity)
         {
-            entity.CompanyId = request.CompanyId;
-            entity.Value = request.Value;
-            entity.Type = (Modelz.ContactType)request.Type;
-            entity.IsOnWhatsapp = request.HasIsOnWhatsapp ? request.IsOnWhatsapp : null;
-            entity.ContactedFromEmail = request.HasContactedFromEmail ? request.ContactedFromEmail : null;
-            entity.Checked = request.HasChecked ? request.Checked : null;
-            entity.Date = request.Date.ToDateTime();
+            entity.CompanyId = grpc.CompanyId;
+            entity.Value = grpc.Value;
+            entity.Type = (Modelz.ContactType)grpc.Type;
+            entity.IsOnWhatsapp = grpc.HasIsOnWhatsapp ? grpc.IsOnWhatsapp : null;
+            entity.ContactedFromEmail = grpc.HasContactedFromEmail ? grpc.ContactedFromEmail : null;
+            entity.Checked = grpc.HasChecked ? grpc.Checked : null;
+
+            entity.Date = grpc.Date?.ToDateTime();
         }
 
     }
